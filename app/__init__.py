@@ -49,7 +49,7 @@ def create_app():
 
     # Create tables and seed admin user
     with app.app_context():
-        db.create_all()
+        # Temporarily removed db.create_all() so Alembic can generate the script
         _seed_admin(app)
 
     return app
