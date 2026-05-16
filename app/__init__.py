@@ -49,7 +49,7 @@ def create_app():
 
     # Create tables and seed admin user
     with app.app_context():
-        # db.create_all() is removed in favor of Flask-Migrate
+        db.create_all()
         _seed_admin(app)
 
     return app
@@ -66,7 +66,7 @@ def _seed_admin(app):
     try:
         admin = User.query.filter_by(email=admin_email).first()
     except (ProgrammingError, OperationalError):
-        # Database tables might not exist yet (before migrations)
+        # Database tables might not exist yet
         return
 
     if not admin:
