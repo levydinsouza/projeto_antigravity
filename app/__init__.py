@@ -23,6 +23,9 @@ def create_app():
     migrate.init_app(app, db)
     csrf.init_app(app)
 
+    # Import models so Alembic can detect the schema
+    from app import models
+
     # Login manager configuration
     login_manager.login_view = 'auth.login'
     login_manager.login_message = 'Por favor, faça login para acessar esta página.'
