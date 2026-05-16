@@ -185,16 +185,25 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .nav-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+}
+
+.logo-img {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+}
+
+.logo-icon {
   font-family: 'Space Grotesk', sans-serif;
   font-size: 1.5rem;
   font-weight: 800;
   color: white;
 }
 
-.logo-icon { font-size: 1.8rem; }
 .logo-highlight { color: var(--primary); }
 
 .nav-links {
@@ -528,6 +537,22 @@ h1, h2, h3, h4, h5, h6 {
 .form-textarea {
     resize: vertical;
     min-height: 100px;
+}
+
+.footer-brand {
+    max-width: 300px;
+}
+
+.footer-logo-img {
+    height: 40px;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.footer-brand .logo-icon {
+  outline: none;
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 3px rgba(144, 97, 249, 0.2);
 }
 
 .form-control:focus {

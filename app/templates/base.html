@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="GDev Tutorial - Plataforma de cursos online para desenvolvedores">
     <title>{% block title %}GDev Tutorial{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -16,7 +17,7 @@
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <a href="{{ url_for('main.index') }}" class="nav-logo">
-                <span class="logo-icon">⚡</span>
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="GDev Logo" class="logo-img">
                 <span class="logo-text">GDev<span class="logo-highlight">Tutorial</span></span>
             </a>
             <div class="nav-links" id="navLinks">
@@ -66,7 +67,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-brand">
-                    <span class="logo-icon">⚡</span>
+                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="GDev Logo" class="logo-img footer-logo-img">
                     <span class="logo-text">GDev<span class="logo-highlight">Tutorial</span></span>
                     <p class="footer-desc">Aprenda desenvolvimento de forma prática e moderna.</p>
                 </div>
