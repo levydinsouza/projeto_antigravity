@@ -46,7 +46,7 @@ def create_app():
 
     # Create tables and seed admin user
     with app.app_context():
-        db.create_all()
+        # db.create_all() is removed in favor of Flask-Migrate
         _seed_admin(app)
 
     return app
@@ -56,9 +56,15 @@ def _seed_admin(app):
     """Create default admin user if not exists."""
     from app.models import User
     from werkzeug.security import generate_password_hash
+    from sqlalchemy.exc import ProgrammingError, OperationalError
 
     admin_email = os.environ.get('ADMIN_EMAIL', 'admin@gdevtutorial.com')
-    admin = User.query.filter_by(email=admin_email).first()
+    
+    try:
+        admin = User.query.filter_by(email=admin_email).first()
+    except (ProgrammingError, OperationalError):
+        # Database tables might not exist yet (before migrations)
+        return
 
     if not admin:
         admin = User(
