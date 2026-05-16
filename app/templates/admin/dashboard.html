@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Painel Admin - GDev Tutorial{% endblock %}
+
+{% block content %}
+<section class="admin-section">
+    <div class="container">
+        <div class="admin-header animate-fade-in">
+            <h1>⚙️ Painel Administrativo</h1>
+            <p>Gerencie o conteúdo e os usuários da plataforma.</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid animate-fade-in">
+            <div class="stat-card">
+                <div class="stat-card-icon">👥</div>
+                <div class="stat-card-value">{{ stats.total_users }}</div>
+                <div class="stat-card-label">Usuários ({{ stats.active_users }} ativos)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon">📚</div>
+                <div class="stat-card-value">{{ stats.total_modules }}</div>
+                <div class="stat-card-label">Módulos ({{ stats.published_modules }} publicados)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon">🎬</div>
+                <div class="stat-card-value">{{ stats.total_lessons }}</div>
+                <div class="stat-card-label">Aulas ({{ stats.published_lessons }} publicadas)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon">✅</div>
+                <div class="stat-card-value">{{ stats.total_completions }}</div>
+                <div class="stat-card-label">Aulas Concluídas</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="admin-actions animate-fade-in">
+            <a href="{{ url_for('admin.modules') }}" class="btn btn-outline">📚 Módulos</a>
+            <a href="{{ url_for('admin.lessons') }}" class="btn btn-outline">🎬 Aulas</a>
+            <a href="{{ url_for('admin.users') }}" class="btn btn-outline">👥 Usuários</a>
+            <a href="{{ url_for('admin.new_module') }}" class="btn btn-primary">+ Novo Módulo</a>
+            <a href="{{ url_for('admin.new_lesson') }}" class="btn btn-primary">+ Nova Aula</a>
+        </div>
+
+        <!-- Recent Users -->
+        <div class="admin-card animate-on-scroll">
+            <h2>Últimos Usuários Cadastrados</h2>
+            {% if recent_users %}
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead><tr><th>Usuário</th><th>Email</th><th>Data</th><th>Status</th></tr></thead>
+                    <tbody>
+                        {% for user in recent_users %}
+                        <tr>
+                            <td><span class="user-avatar-sm">{{ user.username[0]|upper }}</span> {{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                            <td><span class="badge {% if user.is_active %}badge-success{% else %}badge-danger{% endif %}">{{ 'Ativo' if user.is_active else 'Inativo' }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">Nenhum usuário cadastrado ainda.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

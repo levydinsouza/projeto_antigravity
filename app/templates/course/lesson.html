@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ lesson.title }} - GDev Tutorial{% endblock %}
+
+{% block content %}
+<section class="lesson-section">
+    <div class="container">
+        <a href="{{ url_for('main.module_detail', module_id=lesson.module.id) }}" class="back-link animate-fade-in">← Voltar para {{ lesson.module.title }}</a>
+
+        <!-- Video Player -->
+        {% if lesson.embed_url %}
+        <div class="video-container animate-fade-in">
+            <iframe src="{{ lesson.embed_url }}" frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+        </div>
+        {% endif %}
+
+        <div class="lesson-layout">
+            <div class="lesson-main animate-fade-in">
+                <h1>{{ lesson.title }}</h1>
+                {% if lesson.duration_minutes %}<span class="lesson-duration-badge">⏱ {{ lesson.duration_minutes }} min</span>{% endif %}
+
+                {% if lesson.content %}
+                <div class="lesson-content-body">{{ lesson.content|safe }}</div>
+                {% endif %}
+
+                <!-- Complete/Uncomplete -->
+                <form method="POST" action="{{ url_for('main.complete_lesson', lesson_id=lesson.id) }}" class="lesson-complete-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn {% if is_completed %}btn-completed{% else %}btn-primary{% endif %} btn-lg">
+                        {% if is_completed %}✓ Aula Concluída{% else %}Marcar como Concluída{% endif %}
+                    </button>
+                </form>
+
+                <!-- Navigation -->
+                <div class="lesson-nav">
+                    {% if prev_lesson %}
+                    <a href="{{ url_for('main.lesson_detail', lesson_id=prev_lesson.id) }}" class="btn btn-outline">← {{ prev_lesson.title }}</a>
+                    {% else %}<div></div>{% endif %}
+                    {% if next_lesson %}
+                    <a href="{{ url_for('main.lesson_detail', lesson_id=next_lesson.id) }}" class="btn btn-primary">{{ next_lesson.title }} →</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Sidebar: Module Lessons -->
+            <aside class="lesson-sidebar animate-fade-in">
+                <h3>Aulas do Módulo</h3>
+                <div class="sidebar-lessons">
+                    {% for l in module_lessons %}
+                    <a href="{{ url_for('main.lesson_detail', lesson_id=l.id) }}"
+                       class="sidebar-lesson {% if l.id == lesson.id %}active{% endif %} {% if current_user.has_completed_lesson(l.id) %}completed{% endif %}">
+                        <span class="sidebar-num">
+                            {% if current_user.has_completed_lesson(l.id) %}✓{% else %}{{ loop.index }}{% endif %}
+                        </span>
+                        <span class="sidebar-title">{{ l.title }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+{% endblock %}

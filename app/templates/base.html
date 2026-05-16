@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="GDev Tutorial - Plataforma de cursos online para desenvolvedores">
+    <title>{% block title %}GDev Tutorial{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('main.index') }}" class="nav-logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">GDev<span class="logo-highlight">Tutorial</span></span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                {% if current_user.is_authenticated %}
+                    {% if current_user.is_admin %}
+                        <a href="{{ url_for('admin.dashboard') }}" class="nav-link">Painel Admin</a>
+                    {% endif %}
+                    <a href="{{ url_for('main.dashboard') }}" class="nav-link">Meu Curso</a>
+                    <a href="{{ url_for('auth.logout') }}" class="nav-link">Sair</a>
+                    <span class="nav-user">
+                        <span class="user-avatar">{{ current_user.username[0]|upper }}</span>
+                        {{ current_user.username }}
+                    </span>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="nav-link">Entrar</a>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">Criar Conta</a>
+                {% endif %}
+            </div>
+            <button class="nav-toggle" id="navToggle" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-container">
+            {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">
+                <span>{{ message }}</span>
+                <button class="flash-close" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% block footer %}
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="logo-icon">⚡</span>
+                    <span class="logo-text">GDev<span class="logo-highlight">Tutorial</span></span>
+                    <p class="footer-desc">Aprenda desenvolvimento de forma prática e moderna.</p>
+                </div>
+                <div class="footer-copy">
+                    <p>&copy; 2026 GDev Tutorial. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

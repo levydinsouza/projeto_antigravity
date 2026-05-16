@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}GDev Tutorial - Aprenda Desenvolvimento{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-bg-effects">
+        <div class="hero-orb hero-orb-1"></div>
+        <div class="hero-orb hero-orb-2"></div>
+        <div class="hero-orb hero-orb-3"></div>
+        <div class="hero-grid"></div>
+    </div>
+    <div class="container hero-content">
+        <div class="hero-badge animate-fade-in">🚀 Plataforma de Cursos</div>
+        <h1 class="hero-title animate-fade-in">
+            Domine o <span class="text-gradient">Desenvolvimento</span><br>
+            de Software
+        </h1>
+        <p class="hero-subtitle animate-fade-in">
+            Aprenda com aulas práticas, projetos reais e conteúdo atualizado.
+            Sua jornada como desenvolvedor começa aqui.
+        </p>
+        <div class="hero-actions animate-fade-in">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg">
+                    Acessar Curso <span class="btn-arrow">→</span>
+                </a>
+            {% else %}
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                    Começar Agora <span class="btn-arrow">→</span>
+                </a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-lg">Já tenho conta</a>
+            {% endif %}
+        </div>
+        <div class="hero-stats animate-fade-in">
+            <div class="stat-item">
+                <span class="stat-number">{{ modules_count }}</span>
+                <span class="stat-label">Módulos</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-number">{{ lessons_count }}</span>
+                <span class="stat-label">Aulas</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-number">{{ total_duration }}min</span>
+                <span class="stat-label">De Conteúdo</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features" id="features">
+    <div class="container">
+        <div class="section-header animate-on-scroll">
+            <span class="section-tag">Por que escolher o GDev?</span>
+            <h2 class="section-title">Tudo que você precisa para <span class="text-gradient">evoluir</span></h2>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">🎬</div>
+                <h3>Aulas em Vídeo</h3>
+                <p>Conteúdo em vídeo de alta qualidade, organizado em módulos progressivos.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">📊</div>
+                <h3>Acompanhe seu Progresso</h3>
+                <p>Dashboard pessoal para monitorar seu avanço e marcar aulas concluídas.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">🔓</div>
+                <h3>Acesso Completo</h3>
+                <p>Cadastre-se gratuitamente e tenha acesso a todo o conteúdo da plataforma.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">📱</div>
+                <h3>100% Responsivo</h3>
+                <p>Estude de qualquer lugar, no computador, tablet ou celular.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-card animate-on-scroll">
+            <h2>Pronto para começar sua jornada?</h2>
+            <p>Junte-se a nossa comunidade de desenvolvedores e transforme sua carreira.</p>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg">Ir para o Curso →</a>
+            {% else %}
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Criar Conta Gratuita →</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

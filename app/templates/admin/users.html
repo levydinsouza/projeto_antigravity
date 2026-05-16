@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Gerenciar Usuários - GDev Tutorial{% endblock %}
+
+{% block content %}
+<section class="admin-section">
+    <div class="container">
+        <a href="{{ url_for('admin.dashboard') }}" class="back-link animate-fade-in">← Voltar ao Painel</a>
+        <div class="admin-header animate-fade-in">
+            <h1>👥 Gerenciar Usuários</h1>
+        </div>
+
+        <div class="admin-card animate-fade-in">
+            {% if users.items %}
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead><tr><th>Usuário</th><th>Email</th><th>Cadastro</th><th>Aulas</th><th>Status</th><th>Ações</th></tr></thead>
+                    <tbody>
+                        {% for user in users.items %}
+                        <tr>
+                            <td><span class="user-avatar-sm">{{ user.username[0]|upper }}</span> {{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ user.completed_lessons_count }}</td>
+                            <td><span class="badge {% if user.is_active %}badge-success{% else %}badge-danger{% endif %}">{{ 'Ativo' if user.is_active else 'Inativo' }}</span></td>
+                            <td class="actions-cell">
+                                <form method="POST" action="{{ url_for('admin.toggle_user', user_id=user.id) }}" style="display:inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm {% if user.is_active %}btn-warning{% else %}btn-success-sm{% endif %}">{{ 'Desativar' if user.is_active else 'Ativar' }}</button>
+                                </form>
+                                <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}" style="display:inline" onsubmit="return confirm('Tem certeza que deseja deletar este usuário?')">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-danger">Deletar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if users.pages > 1 %}
+            <div class="pagination">
+                {% if users.has_prev %}<a href="?page={{ users.prev_num }}" class="btn btn-sm btn-outline">← Anterior</a>{% endif %}
+                <span class="pagination-info">Página {{ users.page }} de {{ users.pages }}</span>
+                {% if users.has_next %}<a href="?page={{ users.next_num }}" class="btn btn-sm btn-outline">Próxima →</a>{% endif %}
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="empty-state"><div class="empty-icon">👥</div><h3>Nenhum usuário cadastrado</h3></div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

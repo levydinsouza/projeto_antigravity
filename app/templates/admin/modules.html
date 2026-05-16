@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Gerenciar Módulos - GDev Tutorial{% endblock %}
+
+{% block content %}
+<section class="admin-section">
+    <div class="container">
+        <a href="{{ url_for('admin.dashboard') }}" class="back-link animate-fade-in">← Voltar ao Painel</a>
+        <div class="admin-header animate-fade-in">
+            <h1>📚 Gerenciar Módulos</h1>
+            <a href="{{ url_for('admin.new_module') }}" class="btn btn-primary">+ Novo Módulo</a>
+        </div>
+
+        <div class="admin-card animate-fade-in">
+            {% if modules %}
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead><tr><th>Ordem</th><th>Título</th><th>Aulas</th><th>Duração</th><th>Status</th><th>Ações</th></tr></thead>
+                    <tbody>
+                        {% for module in modules %}
+                        <tr>
+                            <td>{{ module.order }}</td>
+                            <td><strong>{{ module.title }}</strong></td>
+                            <td>{{ module.lessons_count }}</td>
+                            <td>{{ module.total_duration }} min</td>
+                            <td><span class="badge {% if module.is_published %}badge-success{% else %}badge-warning{% endif %}">{{ 'Publicado' if module.is_published else 'Rascunho' }}</span></td>
+                            <td class="actions-cell">
+                                <a href="{{ url_for('admin.edit_module', module_id=module.id) }}" class="btn btn-sm btn-outline">Editar</a>
+                                <form method="POST" action="{{ url_for('admin.delete_module', module_id=module.id) }}" style="display:inline" onsubmit="return confirm('Deletar este módulo e todas suas aulas?')">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-danger">Deletar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state"><div class="empty-icon">📚</div><h3>Nenhum módulo criado</h3><a href="{{ url_for('admin.new_module') }}" class="btn btn-primary">Criar Primeiro Módulo</a></div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

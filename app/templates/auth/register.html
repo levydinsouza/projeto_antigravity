@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Criar Conta - GDev Tutorial{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="auth-container animate-fade-in">
+        <div class="auth-header">
+            <span class="logo-icon" style="font-size:2rem">⚡</span>
+            <h1>Crie sua conta</h1>
+            <p>Comece sua jornada no desenvolvimento</p>
+        </div>
+        <form method="POST" class="auth-form" id="registerForm">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                <label for="username">{{ form.username.label.text }}</label>
+                {{ form.username(class="form-control", id="username", placeholder="Seu nome de usuário", autocomplete="username") }}
+                {% for error in form.username.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                <label for="email">{{ form.email.label.text }}</label>
+                {{ form.email(class="form-control", id="email", placeholder="seu@email.com", autocomplete="email") }}
+                {% for error in form.email.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                <label for="password">{{ form.password.label.text }}</label>
+                {{ form.password(class="form-control", id="password", placeholder="Mínimo 6 caracteres", autocomplete="new-password") }}
+                {% for error in form.password.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                <label for="confirm_password">{{ form.confirm_password.label.text }}</label>
+                {{ form.confirm_password(class="form-control", id="confirm_password", placeholder="Repita a senha", autocomplete="new-password") }}
+                {% for error in form.confirm_password.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            {{ form.submit(class="btn btn-primary btn-block") }}
+        </form>
+        <div class="auth-footer">
+            <p>Já tem uma conta? <a href="{{ url_for('auth.login') }}">Entrar</a></p>
+        </div>
+    </div>
+</section>
+{% endblock %}

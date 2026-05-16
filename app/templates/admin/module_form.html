@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} - GDev Tutorial{% endblock %}
+
+{% block content %}
+<section class="admin-section">
+    <div class="container">
+        <a href="{{ url_for('admin.modules') }}" class="back-link animate-fade-in">← Voltar aos Módulos</a>
+        <div class="admin-header animate-fade-in"><h1>{{ title }}</h1></div>
+        <div class="admin-card form-card animate-fade-in">
+            <form method="POST" class="admin-form">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    <label for="title">{{ form.title.label.text }}</label>
+                    {{ form.title(class="form-control", id="title", placeholder="Ex: Introdução ao Python") }}
+                    {% for error in form.title.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+                </div>
+                <div class="form-group">
+                    <label for="description">{{ form.description.label.text }}</label>
+                    {{ form.description(class="form-control form-textarea", id="description", rows="4", placeholder="Descreva o módulo...") }}
+                    {% for error in form.description.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="order">{{ form.order.label.text }}</label>
+                        {{ form.order(class="form-control", id="order") }}
+                        {% for error in form.order.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check" style="margin-top:2rem">
+                            {{ form.is_published(class="form-check-input", id="is_published") }}
+                            <label for="is_published" class="form-check-label">{{ form.is_published.label.text }}</label>
+                        </div>
+                    </div>
+                </div>
+                {{ form.submit(class="btn btn-primary btn-lg") }}
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

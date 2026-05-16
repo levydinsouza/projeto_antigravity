@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ module.title }} - GDev Tutorial{% endblock %}
+
+{% block content %}
+<section class="dashboard-section">
+    <div class="container">
+        <a href="{{ url_for('main.dashboard') }}" class="back-link animate-fade-in">← Voltar ao Dashboard</a>
+        <div class="module-header animate-fade-in">
+            <h1>{{ module.title }}</h1>
+            <p>{{ module.description }}</p>
+            <div class="module-meta">
+                <span>🎬 {{ lessons|length }} aulas</span>
+                <span>⏱ {{ module.total_duration }} min</span>
+            </div>
+        </div>
+
+        {% if lessons %}
+        <div class="lessons-list">
+            {% for lesson in lessons %}
+            <a href="{{ url_for('main.lesson_detail', lesson_id=lesson.id) }}" class="lesson-item animate-on-scroll">
+                <div class="lesson-left">
+                    <span class="lesson-number {% if current_user.has_completed_lesson(lesson.id) %}completed{% endif %}">
+                        {% if current_user.has_completed_lesson(lesson.id) %}✓{% else %}{{ loop.index }}{% endif %}
+                    </span>
+                    <div class="lesson-info">
+                        <h3>{{ lesson.title }}</h3>
+                        <p>{{ lesson.description[:100] }}{% if lesson.description|length > 100 %}...{% endif %}</p>
+                    </div>
+                </div>
+                <div class="lesson-right">
+                    {% if lesson.duration_minutes %}<span class="lesson-duration">{{ lesson.duration_minutes }} min</span>{% endif %}
+                    <span class="lesson-arrow">→</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state animate-fade-in">
+            <div class="empty-icon">📝</div>
+            <h3>Nenhuma aula disponível neste módulo</h3>
+            <p>As aulas estão sendo preparadas.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

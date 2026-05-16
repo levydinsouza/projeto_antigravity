@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Gerenciar Aulas - GDev Tutorial{% endblock %}
+
+{% block content %}
+<section class="admin-section">
+    <div class="container">
+        <a href="{{ url_for('admin.dashboard') }}" class="back-link animate-fade-in">← Voltar ao Painel</a>
+        <div class="admin-header animate-fade-in">
+            <h1>🎬 Gerenciar Aulas</h1>
+            <a href="{{ url_for('admin.new_lesson') }}" class="btn btn-primary">+ Nova Aula</a>
+        </div>
+
+        <div class="admin-card animate-fade-in">
+            {% if lessons %}
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead><tr><th>Módulo</th><th>Ordem</th><th>Título</th><th>Duração</th><th>Status</th><th>Ações</th></tr></thead>
+                    <tbody>
+                        {% for lesson in lessons %}
+                        <tr>
+                            <td><span class="badge badge-info">{{ lesson.module.title }}</span></td>
+                            <td>{{ lesson.order }}</td>
+                            <td><strong>{{ lesson.title }}</strong></td>
+                            <td>{{ lesson.duration_minutes }} min</td>
+                            <td><span class="badge {% if lesson.is_published %}badge-success{% else %}badge-warning{% endif %}">{{ 'Publicado' if lesson.is_published else 'Rascunho' }}</span></td>
+                            <td class="actions-cell">
+                                <a href="{{ url_for('admin.edit_lesson', lesson_id=lesson.id) }}" class="btn btn-sm btn-outline">Editar</a>
+                                <form method="POST" action="{{ url_for('admin.delete_lesson', lesson_id=lesson.id) }}" style="display:inline" onsubmit="return confirm('Deletar esta aula?')">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-danger">Deletar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state"><div class="empty-icon">🎬</div><h3>Nenhuma aula criada</h3><a href="{{ url_for('admin.new_lesson') }}" class="btn btn-primary">Criar Primeira Aula</a></div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

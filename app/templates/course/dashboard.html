@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - GDev Tutorial{% endblock %}
+
+{% block content %}
+<section class="dashboard-section">
+    <div class="container">
+        <div class="dashboard-header animate-fade-in">
+            <div>
+                <h1>Olá, <span class="text-gradient">{{ current_user.username }}</span>! 👋</h1>
+                <p>Continue de onde parou e avance no seu aprendizado.</p>
+            </div>
+        </div>
+
+        <!-- Progress Overview -->
+        <div class="progress-overview animate-fade-in">
+            <div class="progress-card">
+                <div class="progress-info">
+                    <span class="progress-label">Progresso Geral</span>
+                    <span class="progress-value">{{ progress_percent }}%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" style="width: {{ progress_percent }}%"></div>
+                </div>
+                <span class="progress-detail">{{ completed_lessons }} de {{ total_lessons }} aulas concluídas</span>
+            </div>
+        </div>
+
+        <!-- Modules -->
+        <div class="section-header" style="margin-top:2rem">
+            <h2>📚 Módulos do Curso</h2>
+        </div>
+
+        {% if modules %}
+        <div class="modules-grid">
+            {% for module in modules %}
+            <a href="{{ url_for('main.module_detail', module_id=module.id) }}" class="module-card animate-on-scroll">
+                <div class="module-order">Módulo {{ module.order + 1 }}</div>
+                <h3>{{ module.title }}</h3>
+                <p>{{ module.description[:120] }}{% if module.description|length > 120 %}...{% endif %}</p>
+                <div class="module-meta">
+                    <span>🎬 {{ module.lessons_count }} aulas</span>
+                    <span>⏱ {{ module.total_duration }} min</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state animate-fade-in">
+            <div class="empty-icon">📭</div>
+            <h3>Nenhum módulo disponível ainda</h3>
+            <p>O conteúdo do curso está sendo preparado. Volte em breve!</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
