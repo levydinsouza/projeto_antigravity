@@ -1,10 +1,12 @@
 from datetime import datetime, timezone
-from flask import render_template, redirect, url_for, flash, abort
+from flask import render_template, redirect, url_for, flash, abort, request
 from flask_login import login_required, current_user
 
 from app.main import main_bp
+from app.main.forms import ProfileForm
 from app.models import Module, Lesson, UserProgress
 from app import db
+from app.cloudinary_utils import upload_image, delete_image
 
 
 @main_bp.route('/')
@@ -125,3 +127,35 @@ def complete_lesson(lesson_id):
     status = 'concluída' if progress.completed else 'marcada como pendente'
     flash(f'Aula "{lesson.title}" {status}!', 'success')
     return redirect(url_for('main.lesson_detail', lesson_id=lesson_id))
+
+
+@main_bp.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    """User profile page for editing details and profile picture."""
+    form = ProfileForm(obj=current_user)
+
+    if form.validate_on_submit():
+        current_user.username = form.username.data.strip()
+        current_user.email = form.email.data.strip().lower()
+
+        # Handle profile picture upload
+        if form.profile_pic.data:
+            # Delete old profile pic from Cloudinary if exists
+            if current_user.profile_pic_public_id:
+                delete_image(current_user.profile_pic_public_id)
+
+            # Upload new profile pic
+            result = upload_image(form.profile_pic.data, folder='gdev-tutorial/profiles')
+            if result:
+                current_user.profile_pic_url = result['url']
+                current_user.profile_pic_public_id = result['public_id']
+                flash('Sua foto de perfil foi atualizada com sucesso!', 'success')
+            else:
+                flash('Ocorreu um erro ao enviar sua foto de perfil para o Cloudinary. Verifique suas credenciais.', 'warning')
+
+        db.session.commit()
+        flash('Seu perfil foi atualizado com sucesso!', 'success')
+        return redirect(url_for('main.profile'))
+
+    return render_template('course/profile.html', form=form)

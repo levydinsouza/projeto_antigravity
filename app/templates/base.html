@@ -28,11 +28,17 @@
                         <a href="{{ url_for('admin.dashboard') }}" class="nav-link">Painel Admin</a>
                     {% endif %}
                     <a href="{{ url_for('main.dashboard') }}" class="nav-link">Meu Curso</a>
+                    <a href="{{ url_for('main.profile') }}" class="nav-link">Perfil</a>
                     <a href="{{ url_for('auth.logout') }}" class="nav-link">Sair</a>
-                    <span class="nav-user">
-                        <span class="user-avatar">{{ current_user.username[0]|upper }}</span>
-                        {{ current_user.username }}
-                    </span>
+                    <a href="{{ url_for('main.profile') }}" class="nav-user" style="text-decoration: none;">
+                        {% if current_user.profile_pic_url %}
+                            <img src="{{ current_user.profile_pic_url }}" class="user-avatar" 
+                                 style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--primary); display: inline-block; vertical-align: middle;">
+                        {% else %}
+                            <span class="user-avatar">{{ current_user.username[0]|upper }}</span>
+                        {% endif %}
+                        <span style="color: var(--text); margin-left: 0.25rem;">{{ current_user.username }}</span>
+                    </a>
                 {% else %}
                     <a href="{{ url_for('auth.login') }}" class="nav-link">Entrar</a>
                     <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">Criar Conta</a>

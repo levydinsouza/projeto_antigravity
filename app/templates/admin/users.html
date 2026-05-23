@@ -17,7 +17,14 @@
                     <tbody>
                         {% for user in users.items %}
                         <tr>
-                            <td><span class="user-avatar-sm">{{ user.username[0]|upper }}</span> {{ user.username }}</td>
+                            <td>
+                                {% if user.profile_pic_url %}
+                                    <img src="{{ user.profile_pic_url }}" alt="{{ user.username }}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; vertical-align: middle; margin-right: 0.5rem; border: 1px solid var(--primary);">
+                                {% else %}
+                                    <span class="user-avatar-sm">{{ user.username[0]|upper }}</span>
+                                {% endif %}
+                                {{ user.username }}
+                            </td>
                             <td>{{ user.email }}</td>
                             <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
                             <td>{{ user.completed_lessons_count }}</td>
