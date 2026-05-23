@@ -6,10 +6,14 @@ class Config:
     """Base configuration class."""
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    # Default to SQLite for local dev if DATABASE_URL not set or empty
     db_url = os.environ.get('DATABASE_URL')
     if not db_url:
-        db_url = 'sqlite:///dev.db'
+        # Use an absolute path for the SQLite database so that it does not get recreated
+        # in temporary or different relative locations during restarts/hot-reloads.
+        basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+        instance_dir = os.path.join(basedir, 'instance')
+        os.makedirs(instance_dir, exist_ok=True)
+        db_url = f'sqlite:///{os.path.join(instance_dir, "dev.db")}'
     elif db_url.startswith('postgres://'):
         # Railway provides DATABASE_URL with postgres://, SQLAlchemy expects postgresql://
         db_url = db_url.replace('postgres://', 'postgresql://', 1)

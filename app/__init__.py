@@ -47,9 +47,21 @@ def create_app():
     app.register_blueprint(main_bp)
     app.register_blueprint(admin_bp, url_prefix='/admin')
 
+    # Copy the new logo to static/img/logo.png
+    src_logo = "/Users/aluno/.gemini/antigravity/brain/1ef70db9-b479-4cff-bb08-b8dcff2d1306/media__1779538705017.png"
+    dst_logo = os.path.abspath(os.path.join(os.path.dirname(__file__), "static", "img", "logo.png"))
+    if os.path.exists(src_logo):
+        import shutil
+        try:
+            os.makedirs(os.path.dirname(dst_logo), exist_ok=True)
+            shutil.copy(src_logo, dst_logo)
+            print(f"[GDev] Successfully copied logo to {dst_logo}")
+        except Exception as e:
+            print(f"[GDev] Error copying logo: {e}")
+
     # Create tables and seed admin user
     with app.app_context():
-        # Temporarily removed db.create_all() so Alembic can generate the script
+        db.create_all()
         _seed_admin(app)
 
     return app
