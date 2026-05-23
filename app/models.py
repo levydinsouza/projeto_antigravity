@@ -43,6 +43,8 @@ class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, default='')
+    thumbnail_url = db.Column(db.String(500), default='')
+    thumbnail_public_id = db.Column(db.String(300), default='')
     order = db.Column(db.Integer, default=0, nullable=False)
     is_published = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(

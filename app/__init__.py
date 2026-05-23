@@ -47,6 +47,10 @@ def create_app():
     app.register_blueprint(main_bp)
     app.register_blueprint(admin_bp, url_prefix='/admin')
 
+    # Initialize Cloudinary for image uploads
+    from app.cloudinary_utils import init_cloudinary
+    init_cloudinary(app)
+
     # Copy the new logo to static/img/logo.png
     src_logo = "/Users/aluno/.gemini/antigravity/brain/1ef70db9-b479-4cff-bb08-b8dcff2d1306/media__1779538705017.png"
     dst_logo = os.path.abspath(os.path.join(os.path.dirname(__file__), "static", "img", "logo.png"))

@@ -34,6 +34,11 @@
         <div class="modules-grid">
             {% for module in modules %}
             <a href="{{ url_for('main.module_detail', module_id=module.id) }}" class="module-card animate-on-scroll">
+                {% if module.thumbnail_url %}
+                <div class="module-thumbnail">
+                    <img src="{{ module.thumbnail_url }}" alt="{{ module.title }}">
+                </div>
+                {% endif %}
                 <div class="module-order">Módulo {{ module.order + 1 }}</div>
                 <h3>{{ module.title }}</h3>
                 <p>{{ module.description[:120] }}{% if module.description|length > 120 %}...{% endif %}</p>

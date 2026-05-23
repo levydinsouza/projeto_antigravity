@@ -6,6 +6,7 @@ from app.admin_panel import admin_bp
 from app.admin_panel.forms import ModuleForm, LessonForm
 from app.models import User, Module, Lesson, UserProgress
 from app import db
+from app.cloudinary_utils import upload_image, delete_image
 
 
 def admin_required(f):
@@ -118,6 +119,17 @@ def new_module():
             order=form.order.data or 0,
             is_published=form.is_published.data
         )
+
+        # Handle thumbnail upload to Cloudinary
+        if form.thumbnail.data:
+            result = upload_image(form.thumbnail.data, folder='gdev-tutorial/modules')
+            if result:
+                module.thumbnail_url = result['url']
+                module.thumbnail_public_id = result['public_id']
+                flash('Thumbnail enviada com sucesso!', 'info')
+            else:
+                flash('Erro ao enviar thumbnail. O módulo foi criado sem imagem.', 'warning')
+
         db.session.add(module)
         db.session.commit()
         flash(f'Módulo "{module.title}" criado com sucesso!', 'success')
@@ -138,6 +150,21 @@ def edit_module(module_id):
         module.description = form.description.data or ''
         module.order = form.order.data or 0
         module.is_published = form.is_published.data
+
+        # Handle thumbnail upload to Cloudinary (replace old one if exists)
+        if form.thumbnail.data:
+            # Delete old thumbnail from Cloudinary if it exists
+            if module.thumbnail_public_id:
+                delete_image(module.thumbnail_public_id)
+
+            result = upload_image(form.thumbnail.data, folder='gdev-tutorial/modules')
+            if result:
+                module.thumbnail_url = result['url']
+                module.thumbnail_public_id = result['public_id']
+                flash('Thumbnail atualizada com sucesso!', 'info')
+            else:
+                flash('Erro ao enviar nova thumbnail.', 'warning')
+
         db.session.commit()
         flash(f'Módulo "{module.title}" atualizado!', 'success')
         return redirect(url_for('admin.modules'))
@@ -152,6 +179,11 @@ def delete_module(module_id):
     """Delete a module and its lessons."""
     module = Module.query.get_or_404(module_id)
     title = module.title
+
+    # Delete thumbnail from Cloudinary if it exists
+    if module.thumbnail_public_id:
+        delete_image(module.thumbnail_public_id)
+
     db.session.delete(module)
     db.session.commit()
     flash(f'Módulo "{title}" e suas aulas foram deletados.', 'success')

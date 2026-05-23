@@ -7,7 +7,7 @@
         <a href="{{ url_for('admin.modules') }}" class="back-link animate-fade-in">← Voltar aos Módulos</a>
         <div class="admin-header animate-fade-in"><h1>{{ title }}</h1></div>
         <div class="admin-card form-card animate-fade-in">
-            <form method="POST" class="admin-form">
+            <form method="POST" enctype="multipart/form-data" class="admin-form">
                 {{ form.hidden_tag() }}
                 <div class="form-group">
                     <label for="title">{{ form.title.label.text }}</label>
@@ -18,6 +18,18 @@
                     <label for="description">{{ form.description.label.text }}</label>
                     {{ form.description(class="form-control form-textarea", id="description", rows="4", placeholder="Descreva o módulo...") }}
                     {% for error in form.description.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+                </div>
+                <div class="form-group">
+                    <label for="thumbnail">{{ form.thumbnail.label.text }}</label>
+                    {% if module and module.thumbnail_url %}
+                    <div class="thumbnail-preview" style="margin-bottom: 1rem;">
+                        <img src="{{ module.thumbnail_url }}" alt="Thumbnail atual" 
+                             style="max-width: 300px; border-radius: 12px; border: 1px solid var(--border-glass);">
+                        <p class="text-muted" style="font-size: 0.8rem; margin-top: 0.5rem;">Thumbnail atual — envie uma nova para substituir</p>
+                    </div>
+                    {% endif %}
+                    {{ form.thumbnail(class="form-control", id="thumbnail", accept="image/*") }}
+                    {% for error in form.thumbnail.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
                 </div>
                 <div class="form-row">
                     <div class="form-group">

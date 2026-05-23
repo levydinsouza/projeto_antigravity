@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import (StringField, TextAreaField, IntegerField,
                      BooleanField, SelectField, SubmitField)
 from wtforms.validators import DataRequired, Length, URL, Optional, NumberRange
@@ -13,6 +14,10 @@ class ModuleForm(FlaskForm):
     description = TextAreaField('Descrição', validators=[
         Optional(),
         Length(max=2000, message='Descrição deve ter no máximo 2000 caracteres.')
+    ])
+    thumbnail = FileField('Thumbnail do Módulo', validators=[
+        FileAllowed(['jpg', 'jpeg', 'png', 'webp', 'gif'],
+                     'Apenas imagens são permitidas (jpg, png, webp, gif).')
     ])
     order = IntegerField('Ordem', default=0, validators=[
         NumberRange(min=0, message='Ordem deve ser um número positivo.')
@@ -49,3 +54,4 @@ class LessonForm(FlaskForm):
     ])
     is_published = BooleanField('Publicado')
     submit = SubmitField('Salvar Aula')
+
