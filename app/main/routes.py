@@ -146,7 +146,7 @@ def profile():
                 delete_image(current_user.profile_pic_public_id)
 
             # Upload new profile pic
-            result = upload_image(form.profile_pic.data, folder='gdev-tutorial/profiles')
+            result = upload_image(form.profile_pic.data, folder='gdev-tutorial/profiles', is_profile=True)
             if result:
                 current_user.profile_pic_url = result['url']
                 current_user.profile_pic_public_id = result['public_id']
