@@ -59,9 +59,8 @@ def create_app():
         except Exception as e:
             print(f"[GDev] Error copying logo: {e}")
 
-    # Create tables and seed admin user
+    # Seed admin user (tables are managed by Alembic via 'flask db upgrade')
     with app.app_context():
-        db.create_all()
         _seed_admin(app)
 
     return app
