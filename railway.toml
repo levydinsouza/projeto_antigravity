@@ -2,7 +2,8 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "flask db upgrade && gunicorn run:app"
+startCommand = "gunicorn run:app"
+preDeployCommand = "flask db upgrade"
 healthcheckPath = "/"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
