@@ -17,6 +17,15 @@ def create_app():
     # Load configuration
     app.config.from_object('app.config.Config')
 
+    # Safe database connection logging in startup logs
+    db_uri = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+    if db_uri.startswith('sqlite'):
+        print("[GDev] DB CONFIG: Running on SQLite (ephemeral). WARNING: Data will be lost on deploy!")
+    else:
+        # Hide credentials for safety
+        safe_uri = db_uri.split('@')[-1] if '@' in db_uri else db_uri
+        print(f"[GDev] DB CONFIG: Connected to PostgreSQL at {safe_uri}")
+
     # Initialize extensions
     db.init_app(app)
     login_manager.init_app(app)
