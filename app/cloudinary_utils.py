@@ -14,9 +14,11 @@ def init_cloudinary(app=None):
     """
     cloudinary_url = os.environ.get('CLOUDINARY_URL')
     if cloudinary_url:
-        # If CLOUDINARY_URL is present, the Cloudinary SDK picks it up automatically.
-        # We just set secure=True.
-        cloudinary.config(secure=True)
+        # Explicitly configure using the provided URL to avoid detection failure on some platforms
+        cloudinary.config(
+            cloudinary_url=cloudinary_url,
+            secure=True
+        )
         print("[GDev] Cloudinary initialized successfully using CLOUDINARY_URL.")
     else:
         cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME')
