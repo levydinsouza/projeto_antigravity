@@ -5,7 +5,7 @@ from flask_login import login_required, current_user
 from app.main import main_bp
 from app.main.forms import ProfileForm
 from app.models import Module, Lesson, UserProgress
-from app import db
+from app import db, csrf
 from app.cloudinary_utils import upload_image, delete_image
 
 
@@ -162,6 +162,7 @@ def profile():
 
 
 @main_bp.route('/api/chat', methods=['POST'])
+@csrf.exempt
 def chat():
     """API endpoint for OpenAI-powered helper chatbot."""
     import os
