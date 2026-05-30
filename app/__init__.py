@@ -51,18 +51,6 @@ def create_app():
     from app.cloudinary_utils import init_cloudinary
     init_cloudinary(app)
 
-    # Copy the new logo to static/img/logo.png
-    src_logo = "/Users/aluno/.gemini/antigravity/brain/1ef70db9-b479-4cff-bb08-b8dcff2d1306/media__1779538705017.png"
-    dst_logo = os.path.abspath(os.path.join(os.path.dirname(__file__), "static", "img", "logo.png"))
-    if os.path.exists(src_logo):
-        import shutil
-        try:
-            os.makedirs(os.path.dirname(dst_logo), exist_ok=True)
-            shutil.copy(src_logo, dst_logo)
-            print(f"[GDev] Successfully copied logo to {dst_logo}")
-        except Exception as e:
-            print(f"[GDev] Error copying logo: {e}")
-
     # Seed admin user (tables are managed by Alembic via 'flask db upgrade')
     with app.app_context():
         _seed_admin(app)
