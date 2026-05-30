@@ -201,7 +201,7 @@ def chat():
         )
 
         payload = {
-            "model": "gpt-4o-mini",
+            "model": "grok-3-mini-fast",
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message}
@@ -210,9 +210,9 @@ def chat():
             "temperature": 0.7
         }
 
-        # Make request to OpenAI
+        # Make request to xAI Grok
         response = requests.post(
-            "https://api.openai.com/v1/chat/completions",
+            "https://api.x.ai/v1/chat/completions",
             json=payload,
             headers=headers,
             timeout=15
@@ -223,7 +223,7 @@ def chat():
             ai_response = result['choices'][0]['message']['content'].strip()
             return jsonify({"response": ai_response})
         else:
-            print(f"[GDev Helper] OpenAI API Error Status {response.status_code}: {response.text}")
+            print(f"[GDev Helper] Grok API Error Status {response.status_code}: {response.text}")
             return jsonify({
                 "response": "Olá! Tive um pequeno problema de comunicação ao processar sua pergunta. Você pode tentar novamente em alguns segundos?"
             }), 200
