@@ -87,6 +87,46 @@
     </footer>
     {% endblock %}
 
+    <!-- GDev Helper Chatbot Widget -->
+    <div class="chat-helper-container">
+        <!-- Floating Button -->
+        <button id="chat-trigger" class="chat-trigger" aria-label="Abrir GDev Helper">
+            <span class="chat-trigger-icon">🤖</span>
+            <span class="chat-trigger-pulse"></span>
+        </button>
+
+        <!-- Chat Window -->
+        <div id="chat-window" class="chat-window">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <span class="chat-status-dot"></span>
+                    <div>
+                        <h4>GDev Helper</h4>
+                        <p>Assistente IA • Online</p>
+                    </div>
+                </div>
+                <button id="chat-close" class="chat-close" aria-label="Fechar">&times;</button>
+            </div>
+            
+            <div id="chat-messages" class="chat-messages">
+                <div class="message message-bot">
+                    <div class="message-content">
+                        Olá! Eu sou o <strong>GDev Helper</strong>, seu assistente inteligente. 🤖
+                        <br><br>
+                        Como posso ajudar você hoje no seu aprendizado de programação ou na navegação pelo GDev Tutorial?
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-footer">
+                <textarea id="chat-input" placeholder="Digite sua dúvida de programação..." rows="1"></textarea>
+                <button id="chat-send" class="chat-send-btn" aria-label="Enviar">
+                    <svg viewBox="0 0 24 24" class="send-icon"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block extra_js %}{% endblock %}
 </body>

@@ -159,3 +159,76 @@ def profile():
         return redirect(url_for('main.profile'))
 
     return render_template('course/profile.html', form=form)
+
+
+@main_bp.route('/api/chat', methods=['POST'])
+def chat():
+    """API endpoint for OpenAI-powered helper chatbot."""
+    import os
+    import requests
+    from flask import jsonify
+
+    # Get user message
+    data = request.get_json() or {}
+    user_message = data.get('message', '').strip()
+
+    if not user_message:
+        return jsonify({"response": "Por favor, envie uma mensagem válida."}), 400
+
+    # Get OpenAI key from Railway env
+    openai_key = os.environ.get('key_1hsfh0hBAoRilfzZ')
+
+    if not openai_key:
+        return jsonify({
+            "response": "Olá! Eu sou o GDev Helper. No momento, minha chave de acesso à inteligência artificial não está configurada no servidor. Por favor, avise o administrador do site para cadastrar a chave!"
+        }), 200
+
+    try:
+        # Prepare headers and body for OpenAI API
+        headers = {
+            "Authorization": f"Bearer {openai_key}",
+            "Content-Type": "application/json"
+        }
+        
+        # System prompt to give the AI assistant a clear character
+        system_prompt = (
+            "Você é o 'GDev Helper', o assistente virtual de Inteligência Artificial da plataforma 'GDev Tutorial'. "
+            "Seu objetivo é ajudar estudantes e programadores com dúvidas de programação, HTML, CSS, Flask, Banco de Dados, "
+            "e navegação na nossa plataforma. "
+            "Seja extremamente amigável, prestativo, bem-humorado e use emojis. Responda em português (PT-BR). "
+            "Se o usuário pedir códigos, forneça exemplos bem comentados usando markdown."
+        )
+
+        payload = {
+            "model": "gpt-4o-mini",
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_message}
+            ],
+            "max_tokens": 500,
+            "temperature": 0.7
+        }
+
+        # Make request to OpenAI
+        response = requests.post(
+            "https://api.openai.com/v1/chat/completions",
+            json=payload,
+            headers=headers,
+            timeout=15
+        )
+
+        if response.status_code == 200:
+            result = response.json()
+            ai_response = result['choices'][0]['message']['content'].strip()
+            return jsonify({"response": ai_response})
+        else:
+            print(f"[GDev Helper] OpenAI API Error Status {response.status_code}: {response.text}")
+            return jsonify({
+                "response": "Olá! Tive um pequeno problema de comunicação ao processar sua pergunta. Você pode tentar novamente em alguns segundos?"
+            }), 200
+
+    except Exception as e:
+        print(f"[GDev Helper] Chat Exception: {e}")
+        return jsonify({
+            "response": "Ops! Ocorreu um erro de conexão de rede com o cérebro da inteligência artificial. Por favor, tente novamente."
+        }), 200
