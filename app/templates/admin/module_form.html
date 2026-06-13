@@ -42,6 +42,10 @@
                             {{ form.is_published(class="form-check-input", id="is_published") }}
                             <label for="is_published" class="form-check-label">{{ form.is_published.label.text }}</label>
                         </div>
+                        <div class="form-check" style="margin-top:1rem">
+                            {{ form.is_optional(class="form-check-input", id="is_optional") }}
+                            <label for="is_optional" class="form-check-label">{{ form.is_optional.label.text }}</label>
+                        </div>
                     </div>
                 </div>
                 {{ form.submit(class="btn btn-primary btn-lg") }}

@@ -1420,3 +1420,175 @@ h1, h2, h3, h4, h5, h6 {
         bottom: 70px;
     }
 }
+
+/* ==========================================================================
+   Celebration Overlay & Optional Modules
+   ========================================================================== */
+.celebration-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10, 10, 22, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    opacity: 1;
+    transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.confetti-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.celebration-card {
+    background: linear-gradient(135deg, rgba(25, 25, 50, 0.95), rgba(15, 15, 35, 0.95));
+    border: 2px solid rgba(184, 123, 255, 0.3);
+    border-radius: 24px;
+    padding: 3rem 2.5rem;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(184, 123, 255, 0.15);
+    position: relative;
+    z-index: 2;
+    transform: scale(1);
+    animation: scale-up 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scale-up {
+    0% { transform: scale(0.7); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.celebration-close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.celebration-close:hover {
+    color: white;
+    transform: scale(1.1);
+}
+
+.trophy-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.trophy-glow {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: pulse-glow 3s infinite alternate ease-in-out;
+}
+
+@keyframes pulse-glow {
+    0% { transform: scale(0.9); opacity: 0.5; }
+    100% { transform: scale(1.2); opacity: 0.9; }
+}
+
+.trophy-pixel-img {
+    width: 96px;
+    height: 96px;
+    image-rendering: pixelated;
+    position: relative;
+    z-index: 2;
+    animation: bounce-trophy 2.5s infinite ease-in-out;
+}
+
+.trophy-icon {
+    font-size: 5rem;
+    position: relative;
+    z-index: 2;
+    animation: bounce-trophy 2.5s infinite ease-in-out;
+}
+
+@keyframes bounce-trophy {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(3deg); }
+}
+
+.celebration-title {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.celebration-text {
+    font-size: 1.1rem;
+    color: var(--text-main);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.celebration-text strong {
+    color: var(--primary);
+}
+
+.celebration-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.celebration-actions .btn {
+    min-width: 140px;
+}
+
+/* Optional Modules Dashboard styling */
+.module-card-optional {
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    background: rgba(18, 18, 32, 0.5);
+}
+
+.module-card-optional::before {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+}
+
+.badge-optional {
+    background: rgba(255, 90, 121, 0.15);
+    color: var(--accent);
+    border: 1px solid rgba(255, 90, 121, 0.3);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.module-badge-completed {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: auto;
+}
+

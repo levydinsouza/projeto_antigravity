@@ -11,6 +11,36 @@
             </div>
         </div>
 
+        <!-- Celebration Modal (shown when ALL required courses are completed) -->
+        {% if all_courses_completed %}
+        <div id="celebration-overlay" class="celebration-overlay">
+            <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+            <div class="celebration-card animate-fade-in">
+                <button class="celebration-close" id="celebration-close" aria-label="Fechar">&times;</button>
+                <div class="trophy-container">
+                    <div class="trophy-glow"></div>
+                    <img src="{{ url_for('static', filename='img/trophy_pixel.png') }}" alt="Troféu GDevTutorial" class="trophy-pixel-img">
+                </div>
+                <h1 class="celebration-title">
+                    <span class="text-gradient">Parabéns!</span>
+                </h1>
+                <p class="celebration-text">
+                    Você completou todos os cursos do <strong>GDevTutorial</strong>! 🎉<br>
+                    Mas fique ligado, pois aparecerá novos conteúdos no futuro.<br>
+                    Também tente nossos <strong>cursos opcionais</strong>!
+                </p>
+                <div class="celebration-actions">
+                    {% if optional_modules %}
+                    <a href="#optional-section" class="btn btn-primary btn-lg" onclick="closeCelebration()">
+                        Ver Cursos Opcionais 📖
+                    </a>
+                    {% endif %}
+                    <button class="btn btn-outline" onclick="closeCelebration()">Continuar</button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Progress Overview -->
         <div class="progress-overview animate-fade-in">
             <div class="progress-card">
@@ -21,18 +51,18 @@
                 <div class="progress-bar-bg">
                     <div class="progress-bar-fill" style="width: {{ progress_percent }}%"></div>
                 </div>
-                <span class="progress-detail">{{ completed_lessons }} de {{ total_lessons }} aulas concluídas</span>
+                <span class="progress-detail">{{ completed_lessons }} de {{ total_lessons }} aulas concluídas (cursos obrigatórios)</span>
             </div>
         </div>
 
-        <!-- Modules -->
+        <!-- Required Modules -->
         <div class="section-header" style="margin-top:2rem">
             <h2>📚 Módulos do Curso</h2>
         </div>
 
-        {% if modules %}
+        {% if required_modules %}
         <div class="modules-grid">
-            {% for module in modules %}
+            {% for module in required_modules %}
             <a href="{{ url_for('main.module_detail', module_id=module.id) }}" class="module-card animate-on-scroll">
                 {% if module.thumbnail_url %}
                 <div class="module-thumbnail">
@@ -45,6 +75,9 @@
                 <div class="module-meta">
                     <span>🎬 {{ module.lessons_count }} aulas</span>
                     <span>⏱ {{ module.total_duration }} min</span>
+                    {% if current_user.has_completed_quiz(module.id) %}
+                    <span class="module-badge-completed">✓ Concluído</span>
+                    {% endif %}
                 </div>
             </a>
             {% endfor %}
@@ -56,6 +89,193 @@
             <p>O conteúdo do curso está sendo preparado. Volte em breve!</p>
         </div>
         {% endif %}
+
+        <!-- Optional Modules Section -->
+        {% if optional_modules %}
+        <div id="optional-section" class="section-header" style="margin-top:4rem">
+            <h2>📖 Módulos Opcionais</h2>
+            <p class="text-muted" style="font-size: 0.95rem; margin-top: 0.5rem;">Conteúdo extra para quem quer ir além! Não contam para a conclusão do curso.</p>
+        </div>
+
+        <div class="modules-grid">
+            {% for module in optional_modules %}
+            <a href="{{ url_for('main.module_detail', module_id=module.id) }}" class="module-card module-card-optional animate-on-scroll">
+                {% if module.thumbnail_url %}
+                <div class="module-thumbnail">
+                    <img src="{{ module.thumbnail_url }}" alt="{{ module.title }}">
+                </div>
+                {% endif %}
+                <div class="module-order">
+                    <span class="badge-optional">Opcional</span>
+                </div>
+                <h3>{{ module.title }}</h3>
+                <p>{{ module.description[:120] }}{% if module.description|length > 120 %}...{% endif %}</p>
+                <div class="module-meta">
+                    <span>🎬 {{ module.lessons_count }} aulas</span>
+                    <span>⏱ {{ module.total_duration }} min</span>
+                    {% if current_user.has_completed_quiz(module.id) %}
+                    <span class="module-badge-completed">✓ Concluído</span>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
 </section>
+
+{% if all_courses_completed %}
+<script>
+// ──────────────────────────────────────────────
+//  Celebration: Confetti Canvas Animation
+// ──────────────────────────────────────────────
+(function() {
+    const canvas = document.getElementById('confetti-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let animationId;
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    const COLORS = [
+        '#B87BFF', '#9061F9', '#FF5A79', '#FFD700',
+        '#10b981', '#06b6d4', '#f43f5e', '#8b5cf6',
+        '#fbbf24', '#ec4899', '#22d3ee', '#a78bfa'
+    ];
+
+    class Confetti {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height - canvas.height;
+            this.w = Math.random() * 12 + 6;
+            this.h = Math.random() * 6 + 3;
+            this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+            this.vy = Math.random() * 3 + 1.5;
+            this.vx = (Math.random() - 0.5) * 2;
+            this.rotation = Math.random() * 360;
+            this.rotationSpeed = (Math.random() - 0.5) * 8;
+            this.opacity = 1;
+            this.shape = Math.random() > 0.5 ? 'rect' : 'circle';
+        }
+
+        update() {
+            this.y += this.vy;
+            this.x += this.vx;
+            this.rotation += this.rotationSpeed;
+            this.vx += (Math.random() - 0.5) * 0.1;
+            if (this.y > canvas.height + 20) {
+                this.opacity -= 0.02;
+            }
+        }
+
+        draw() {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate((this.rotation * Math.PI) / 180);
+            ctx.globalAlpha = Math.max(this.opacity, 0);
+            ctx.fillStyle = this.color;
+            if (this.shape === 'rect') {
+                ctx.fillRect(-this.w / 2, -this.h / 2, this.w, this.h);
+            } else {
+                ctx.beginPath();
+                ctx.arc(0, 0, this.w / 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+    }
+
+    function createBurst() {
+        for (let i = 0; i < 150; i++) {
+            particles.push(new Confetti());
+        }
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        particles = particles.filter(p => p.opacity > 0);
+
+        if (particles.length > 0) {
+            animationId = requestAnimationFrame(animate);
+        }
+    }
+
+    // ──────────────────────────────────────────────
+    //  Victory Sound using Web Audio API
+    // ──────────────────────────────────────────────
+    function playVictorySound() {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+            // Play a cheerful ascending arpeggio
+            const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+            const durations = [0.15, 0.15, 0.15, 0.4];
+
+            let startTime = audioCtx.currentTime;
+            notes.forEach((freq, i) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, startTime);
+                gain.gain.setValueAtTime(0.15, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + durations[i] + 0.3);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(startTime);
+                osc.stop(startTime + durations[i] + 0.3);
+                startTime += durations[i];
+            });
+        } catch(e) {
+            console.log('Audio not supported:', e);
+        }
+    }
+
+    // ──────────────────────────────────────────────
+    //  Launch on page load
+    // ──────────────────────────────────────────────
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Check if celebration was already seen in this session
+    if (!sessionStorage.getItem('gdev_celebration_seen')) {
+        sessionStorage.setItem('gdev_celebration_seen', 'true');
+        createBurst();
+        animate();
+
+        // Second burst after 1 second
+        setTimeout(() => {
+            createBurst();
+            if (!animationId) animate();
+        }, 1000);
+
+        playVictorySound();
+    } else {
+        // Already seen, hide overlay
+        const overlay = document.getElementById('celebration-overlay');
+        if (overlay) overlay.style.display = 'none';
+    }
+})();
+
+function closeCelebration() {
+    const overlay = document.getElementById('celebration-overlay');
+    if (overlay) {
+        overlay.style.opacity = '0';
+        overlay.style.pointerEvents = 'none';
+        setTimeout(() => { overlay.style.display = 'none'; }, 500);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const closeBtn = document.getElementById('celebration-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeCelebration);
+    }
+});
+</script>
+{% endif %}
 {% endblock %}

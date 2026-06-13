@@ -23,6 +23,7 @@ class ModuleForm(FlaskForm):
         NumberRange(min=0, message='Ordem deve ser um número positivo.')
     ])
     is_published = BooleanField('Publicado')
+    is_optional = BooleanField('Módulo Opcional (não conta para conclusão do curso)')
     submit = SubmitField('Salvar Módulo')
 
 

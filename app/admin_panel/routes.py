@@ -117,7 +117,8 @@ def new_module():
             title=form.title.data.strip(),
             description=form.description.data or '',
             order=form.order.data or 0,
-            is_published=form.is_published.data
+            is_published=form.is_published.data,
+            is_optional=form.is_optional.data
         )
 
         # Handle thumbnail upload to Cloudinary
@@ -150,6 +151,7 @@ def edit_module(module_id):
         module.description = form.description.data or ''
         module.order = form.order.data or 0
         module.is_published = form.is_published.data
+        module.is_optional = form.is_optional.data
 
         # Handle thumbnail upload to Cloudinary (replace old one if exists)
         if form.thumbnail.data:

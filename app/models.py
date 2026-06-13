@@ -58,6 +58,16 @@ class User(UserMixin, db.Model):
         completion = self.get_quiz_completion(module_id)
         return completion is not None and completion.completed
 
+    def has_completed_all_required_courses(self):
+        """Check if user has passed the quiz for every required (non-optional) published module."""
+        required_modules = Module.query.filter_by(is_published=True, is_optional=False).all()
+        if not required_modules:
+            return False
+        for module in required_modules:
+            if not self.has_completed_quiz(module.id):
+                return False
+        return True
+
 
 class Module(db.Model):
     """Course module/section."""
@@ -70,6 +80,7 @@ class Module(db.Model):
     thumbnail_public_id = db.Column(db.String(300), default='')
     order = db.Column(db.Integer, default=0, nullable=False)
     is_published = db.Column(db.Boolean, default=False, nullable=False)
+    is_optional = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(
         db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
     )

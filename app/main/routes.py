@@ -29,22 +29,45 @@ def index():
 @login_required
 def dashboard():
     """Student dashboard."""
-    modules = Module.query.filter_by(is_published=True).order_by(Module.order).all()
+    # Separate required and optional modules
+    required_modules = Module.query.filter_by(is_published=True, is_optional=False).order_by(Module.order).all()
+    optional_modules = Module.query.filter_by(is_published=True, is_optional=True).order_by(Module.order).all()
 
-    # Calculate overall progress
-    total_lessons = Lesson.query.filter_by(is_published=True).count()
-    completed_lessons = UserProgress.query.filter_by(
-        user_id=current_user.id, completed=True
-    ).count()
+    # Calculate progress based on REQUIRED modules only
+    required_module_ids = [m.id for m in required_modules]
+    if required_module_ids:
+        total_lessons = Lesson.query.filter(
+            Lesson.is_published == True,
+            Lesson.module_id.in_(required_module_ids)
+        ).count()
+    else:
+        total_lessons = 0
+
+    completed_lessons = 0
+    if total_lessons > 0:
+        completed_lesson_ids = [p.lesson_id for p in UserProgress.query.filter_by(
+            user_id=current_user.id, completed=True
+        ).all()]
+        completed_lessons = Lesson.query.filter(
+            Lesson.id.in_(completed_lesson_ids),
+            Lesson.is_published == True,
+            Lesson.module_id.in_(required_module_ids)
+        ).count() if completed_lesson_ids else 0
+
     progress_percent = (
         int((completed_lessons / total_lessons) * 100) if total_lessons > 0 else 0
     )
 
+    # Check if user completed ALL required courses (quiz passed on every required module)
+    all_courses_completed = current_user.has_completed_all_required_courses()
+
     return render_template('course/dashboard.html',
-                           modules=modules,
+                           required_modules=required_modules,
+                           optional_modules=optional_modules,
                            total_lessons=total_lessons,
                            completed_lessons=completed_lessons,
-                           progress_percent=progress_percent)
+                           progress_percent=progress_percent,
+                           all_courses_completed=all_courses_completed)
 
 
 @main_bp.route('/course/module/<int:module_id>')
