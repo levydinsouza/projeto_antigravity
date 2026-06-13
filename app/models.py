@@ -22,6 +22,8 @@ class User(UserMixin, db.Model):
     # Relationships
     progress = db.relationship('UserProgress', backref='user', lazy='dynamic',
                                cascade='all, delete-orphan')
+    quiz_completions = db.relationship('ModuleQuizCompletion', backref='user', lazy='dynamic',
+                                       cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -36,6 +38,25 @@ class User(UserMixin, db.Model):
     def has_completed_lesson(self, lesson_id):
         prog = self.get_progress_for_lesson(lesson_id)
         return prog is not None and prog.completed
+
+    def has_completed_all_lessons(self, module):
+        """Check if user completed all published lessons in a module."""
+        pub_lessons = module.published_lessons.all()
+        if not pub_lessons:
+            return False
+        for lesson in pub_lessons:
+            if not self.has_completed_lesson(lesson.id):
+                return False
+        return True
+
+    def get_quiz_completion(self, module_id):
+        """Get quiz completion record for a module."""
+        return self.quiz_completions.filter_by(module_id=module_id).first()
+
+    def has_completed_quiz(self, module_id):
+        """Check if user successfully passed the quiz for a module."""
+        completion = self.get_quiz_completion(module_id)
+        return completion is not None and completion.completed
 
 
 class Module(db.Model):
@@ -146,3 +167,26 @@ class UserProgress(db.Model):
 
     def __repr__(self):
         return f'<UserProgress user={self.user_id} lesson={self.lesson_id}>'
+
+
+class ModuleQuizCompletion(db.Model):
+    """Track module quiz completion/confirmation."""
+    __tablename__ = 'module_quiz_completions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    module_id = db.Column(db.Integer, db.ForeignKey('modules.id'), nullable=False, index=True)
+    completed = db.Column(db.Boolean, default=True, nullable=False)
+    score = db.Column(db.Integer, nullable=False)
+    completed_at = db.Column(
+        db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
+    )
+
+    # Unique constraint: one quiz completion per user per module
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'module_id', name='uq_user_module_quiz'),
+    )
+
+    def __repr__(self):
+        return f'<ModuleQuizCompletion user={self.user_id} module={self.module_id} score={self.score}>'
+

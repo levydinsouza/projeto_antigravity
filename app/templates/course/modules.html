@@ -14,6 +14,39 @@
             </div>
         </div>
 
+        <!-- Quiz Status Banner -->
+        {% if lessons and current_user.has_completed_all_lessons(module) %}
+            {% if current_user.has_completed_quiz(module.id) %}
+                <div class="quiz-status-card completed animate-fade-in" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="font-size: 2.5rem; color: #10b981;">🏆</div>
+                        <div>
+                            <h3 style="color: #10b981; margin: 0 0 0.25rem 0; font-family: 'Space Grotesk', sans-serif;">Módulo Concluído & Confirmado!</h3>
+                            <p style="margin: 0; color: var(--text); font-size: 0.95rem;">Parabéns! Você concluiu todas as aulas e passou no quiz de validação com sucesso.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <span style="display: inline-block; background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; font-size: 0.9rem;">
+                            Score: {{ current_user.get_quiz_completion(module.id).score }}/3
+                        </span>
+                    </div>
+                </div>
+            {% else %}
+                <div class="quiz-status-card pending animate-fade-in" style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.25); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="font-size: 2.5rem; color: var(--primary);">📝</div>
+                        <div>
+                            <h3 style="color: var(--primary); margin: 0 0 0.25rem 0; font-family: 'Space Grotesk', sans-serif;">Todas as aulas concluídas!</h3>
+                            <p style="margin: 0; color: var(--text); font-size: 0.95rem;">Responda ao quiz rápido de 3 perguntas para confirmar sua conclusão do módulo.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="{{ url_for('main.module_quiz', module_id=module.id) }}" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-weight: 600; text-decoration: none;">Fazer Quiz do Módulo →</a>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+
         {% if lessons %}
         <div class="lessons-list">
             {% for lesson in lessons %}

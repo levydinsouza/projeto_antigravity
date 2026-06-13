@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Resultado do Quiz - gdevtutorial.online{% endblock %}
+
+{% block content %}
+<section class="dashboard-section" style="max-width: 600px; margin: 0 auto; padding: 4rem 1rem; text-align: center;">
+    <div class="container animate-fade-in">
+        <div class="card" style="background: var(--surface-glass); border: 1px solid var(--border-glass); border-radius: 24px; padding: 3rem 2rem; box-shadow: 0 15px 35px rgba(0,0,0,0.4); position: relative; overflow: hidden;">
+            
+            {% if passed %}
+            <!-- Confetti/Glow decoration -->
+            <div style="position: absolute; top: -50px; left: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%); border-radius: 50%;"></div>
+            
+            <div style="font-size: 5rem; margin-bottom: 1.5rem; animation: bounce 1.5s infinite alternate;">🎉</div>
+            <h1 class="text-gradient" style="font-size: 2.2rem; margin-bottom: 0.5rem;">Parabéns!</h1>
+            <h2 style="font-size: 1.3rem; color: #10b981; font-weight: 500; margin-bottom: 2rem;">Módulo Concluído com Sucesso!</h2>
+            
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1.5px dashed rgba(16, 185, 129, 0.4); border-radius: 16px; padding: 1.5rem; margin-bottom: 2.5rem; display: inline-block; min-width: 200px;">
+                <span style="display: block; font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.5rem;">Sua Pontuação</span>
+                <span style="font-size: 3rem; font-weight: 800; color: #10b981; font-family: 'Space Grotesk', sans-serif;">{{ score }}/3</span>
+            </div>
+            
+            <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 3rem; max-width: 450px; margin-left: auto; margin-right: auto;">
+                Você respondeu corretamente às perguntas do módulo <strong>{{ module.title }}</strong> e confirmou seu aprendizado no-code da GDevelop!
+            </p>
+            
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                {% if next_module %}
+                <a href="{{ url_for('main.module_detail', module_id=next_module.id) }}" class="btn btn-primary btn-lg">
+                    Ir Para o Próximo Módulo →
+                </a>
+                {% endif %}
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline">
+                    Ir para o Meu Dashboard
+                </a>
+            </div>
+            
+            {% else %}
+            <!-- Failed state -->
+            <div style="font-size: 5rem; margin-bottom: 1.5rem; animation: pulse 2s infinite;">❌</div>
+            <h1 style="font-size: 2.2rem; color: var(--accent); margin-bottom: 0.5rem;">Quase lá!</h1>
+            <h2 style="font-size: 1.3rem; color: var(--text-muted); font-weight: 500; margin-bottom: 2rem;">Você acertou {{ score }} de 3 perguntas.</h2>
+            
+            <div style="background: rgba(255, 90, 121, 0.1); border: 1.5px dashed rgba(255, 90, 121, 0.4); border-radius: 16px; padding: 1.5rem; margin-bottom: 2.5rem; display: inline-block; min-width: 200px;">
+                <span style="display: block; font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.5rem;">Score Mínimo</span>
+                <span style="font-size: 3rem; font-weight: 800; color: var(--accent); font-family: 'Space Grotesk', sans-serif;">2/3</span>
+            </div>
+            
+            <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 3rem; max-width: 450px; margin-left: auto; margin-right: auto;">
+                Para confirmar a conclusão do módulo <strong>{{ module.title }}</strong>, você precisa acertar pelo menos 2 perguntas. Revise as aulas e tente novamente!
+            </p>
+            
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <a href="{{ url_for('main.module_quiz', module_id=module.id) }}" class="btn btn-primary btn-lg">
+                    Refazer o Quiz
+                </a>
+                <a href="{{ url_for('main.module_detail', module_id=module.id) }}" class="btn btn-outline">
+                    Voltar para o Módulo
+                </a>
+            </div>
+            {% endif %}
+            
+        </div>
+    </div>
+</section>
+
+<style>
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+</style>
+{% endblock %}

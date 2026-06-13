@@ -1,10 +1,10 @@
 from datetime import datetime, timezone
-from flask import render_template, redirect, url_for, flash, abort, request
+from flask import render_template, redirect, url_for, flash, abort, request, session
 from flask_login import login_required, current_user
 
 from app.main import main_bp
 from app.main.forms import ProfileForm
-from app.models import Module, Lesson, UserProgress
+from app.models import Module, Lesson, UserProgress, ModuleQuizCompletion
 from app import db, csrf
 from app.cloudinary_utils import upload_image, delete_image
 
@@ -57,6 +57,310 @@ def module_detail(module_id):
 
     lessons = module.published_lessons.all()
     return render_template('course/modules.html', module=module, lessons=lessons)
+
+
+def get_fallback_quiz(module):
+    """Provide default fallback questions for the quiz."""
+    title_lower = module.title.lower()
+    
+    if "iniciante" in title_lower or "zero" in title_lower or "introdução" in title_lower:
+        return [
+            {
+                "id": 1,
+                "question": "Qual é a principal forma de programar a lógica de um jogo na GDevelop?",
+                "options": [
+                    "Escrevendo scripts em C++",
+                    "Usando a folha de Eventos visuais (Condições e Ações)",
+                    "Digitando linhas de código em Python",
+                    "Criando blocos de blueprint da Unreal Engine"
+                ],
+                "correct_index": 1
+            },
+            {
+                "id": 2,
+                "question": "O que acontece na GDevelop se um evento não tiver nenhuma Condição definida?",
+                "options": [
+                    "As Ações do evento são executadas a cada frame do jogo (Sempre)",
+                    "O jogo gera um erro e para de funcionar",
+                    "As Ações do evento nunca serão executadas",
+                    "O evento é deletado automaticamente"
+                ],
+                "correct_index": 0
+            },
+            {
+                "id": 3,
+                "question": "Onde você adiciona novas imagens, animações e sons na GDevelop?",
+                "options": [
+                    "No editor de código HTML",
+                    "Na lista de variáveis globais",
+                    "No painel de Recursos do projeto",
+                    "No banco de dados SQL do site"
+                ],
+                "correct_index": 2
+            }
+        ]
+    elif "movimento" in title_lower or "física" in title_lower or "pathfinding" in title_lower:
+        return [
+            {
+                "id": 1,
+                "question": "Para que serve o comportamento (Behavior) de Pathfinding na GDevelop?",
+                "options": [
+                    "Para fazer um objeto se mover e desviar de obstáculos de forma inteligente",
+                    "Para reproduzir uma música de fundo no jogo",
+                    "Para criar um sistema de inventário em array",
+                    "Para fazer o jogo rodar em 3D nativo"
+                ],
+                "correct_index": 0
+            },
+            {
+                "id": 2,
+                "question": "Se você quer que um objeto funcione como parede ou chão no comportamento de Pathfinding, qual comportamento ele deve ter?",
+                "options": [
+                    "Platformer Character",
+                    "Physics 2.0",
+                    "Pathfinding Obstacle (Obstáculo de busca de caminhos)",
+                    "Tween"
+                ],
+                "correct_index": 2
+            },
+            {
+                "id": 3,
+                "question": "Qual comportamento nativo da GDevelop é usado para simular gravidade realista, colisões físicas e forças?",
+                "options": [
+                    "Anchor",
+                    "Physics 2.0 (Física 2.0)",
+                    "Tween",
+                    "Draggable"
+                ],
+                "correct_index": 1
+            }
+        ]
+    elif "monetiza" in title_lower or "marketing" in title_lower or "negócio" in title_lower:
+        return [
+            {
+                "id": 1,
+                "question": "Qual das seguintes alternativas é uma das 4 principais formas de monetizar jogos ensinadas no gdevtutorial.online?",
+                "options": [
+                    "Vender o código-fonte inteiro para outras engines",
+                    "Anúncios integrados (AdMob) e Compras no aplicativo (In-App Purchases)",
+                    "Alugar computadores para os jogadores",
+                    "Mineração de criptomoedas em segundo plano"
+                ],
+                "correct_index": 1
+            },
+            {
+                "id": 2,
+                "question": "Onde um desenvolvedor indie pode publicar seu jogo web de forma gratuita e aceitar doações dos jogadores?",
+                "options": [
+                    "Steam (exige pagamento da taxa do Steam Direct)",
+                    "Newgrounds ou Itch.io (com modelo pague o quanto quiser)",
+                    "Apenas na Google Play Store",
+                    "Apenas enviando por e-mail para cada jogador"
+                ],
+                "correct_index": 1
+            },
+            {
+                "id": 3,
+                "question": "Segundo o guia de marketing da plataforma, qual é a meta ideal de jogadores orgânicos iniciais para focar na divulgação?",
+                "options": [
+                    "Os primeiros 100 jogadores",
+                    "Os primeiros 10.000 jogadores",
+                    "Mais de 1 milhão de jogadores no primeiro dia",
+                    "Apenas amigos e familiares"
+                ],
+                "correct_index": 1
+            }
+        ]
+    
+    return [
+        {
+            "id": 1,
+            "question": "O que é um 'Behavior' (Comportamento) na GDevelop?",
+            "options": [
+                "Uma regra de conduta para o jogador",
+                "Uma funcionalidade pré-programada nativa que adiciona mecânicas prontas ao objeto",
+                "Um script escrito em JavaScript para rodar no navegador",
+                "Um tipo de variável global"
+            ],
+            "correct_index": 1
+        },
+        {
+            "id": 2,
+            "question": "Como funcionam as Condições e Ações na folha de eventos da GDevelop?",
+            "options": [
+                "As Ações rodam primeiro e depois testam as Condições",
+                "Condições e Ações rodam de forma aleatória",
+                "Se as Condições forem verdadeiras, as Ações correspondentes serão executadas",
+                "As Condições mudam a tela e as Ações salvam dados"
+            ],
+            "correct_index": 2
+        },
+        {
+            "id": 3,
+            "question": "Qual recurso da GDevelop é ideal para fazer interpolações suaves de posição, escala, ângulo ou opacidade de objetos?",
+            "options": [
+                "Tween (Interpolação)",
+                "Anchor (Ancoragem)",
+                "Pathfinding (Busca de caminhos)",
+                "Platformer Character"
+            ],
+            "correct_index": 0
+        }
+    ]
+
+
+def generate_quiz_for_module(module):
+    """Generate 3 multiple-choice questions for a module using Gemini, or fall back to default questions."""
+    import os
+    import json
+    from google import genai
+
+    gemini_key = os.environ.get('GEMINI_API_KEY')
+    if not gemini_key:
+        return get_fallback_quiz(module)
+
+    # Compile lesson titles for context
+    lessons_titles = [l.title for l in module.published_lessons.all()]
+    lessons_context = ", ".join(lessons_titles) if lessons_titles else "Nenhuma aula listada"
+
+    prompt = f"""Crie um quiz de exatamente 3 perguntas de múltipla escolha baseadas nas seguintes informações sobre o módulo do curso de desenvolvimento de jogos:
+Módulo: {module.title}
+Descrição: {module.description}
+Aulas: {lessons_context}
+
+O quiz deve ser focado estritamente na engine GDevelop e em desenvolvimento de jogos sem código (No-Code), compatível com o tema do módulo. Cada pergunta deve ter exatamente 4 opções de resposta e indicar o index da resposta correta (0 para a primeira, 1 para a segunda, etc.).
+Responda APENAS com um objeto JSON válido no seguinte formato:
+{{
+  "questions": [
+    {{
+      "id": 1,
+      "question": "Texto da pergunta?",
+      "options": ["Opção A", "Opção B", "Opção C", "Opção D"],
+      "correct_index": 0
+    }},
+    {{
+      "id": 2,
+      "question": "Texto da segunda pergunta?",
+      "options": ["Opção A", "Opção B", "Opção C", "Opção D"],
+      "correct_index": 2
+    }},
+    {{
+      "id": 3,
+      "question": "Texto da terceira pergunta?",
+      "options": ["Opção A", "Opção B", "Opção C", "Opção D"],
+      "correct_index": 1
+    }}
+  ]
+}}
+Retorne apenas o JSON limpo, sem blocos de código markdown ou texto extra.
+"""
+    try:
+        client = genai.Client(api_key=gemini_key)
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+        )
+        
+        # Clean response text
+        resp_text = response.text.strip()
+        if resp_text.startswith("```json"):
+            resp_text = resp_text[7:]
+        if resp_text.endswith("```"):
+            resp_text = resp_text[:-3]
+        resp_text = resp_text.strip()
+        
+        data = json.loads(resp_text)
+        if "questions" in data and len(data["questions"]) == 3:
+            return data["questions"]
+    except Exception as e:
+        print(f"[GDev Quiz] Gemini generation failed, using fallback: {e}")
+        
+    return get_fallback_quiz(module)
+
+
+@main_bp.route('/course/module/<int:module_id>/quiz')
+@login_required
+def module_quiz(module_id):
+    """Start or view the quiz for a completed module."""
+    module = Module.query.get_or_404(module_id)
+    if not module.is_published:
+        abort(404)
+
+    # Check if user completed all lessons in the module
+    if not current_user.has_completed_all_lessons(module):
+        flash('Você precisa concluir todas as aulas do módulo antes de realizar o quiz!', 'warning')
+        return redirect(url_for('main.module_detail', module_id=module_id))
+
+    # Retrieve or generate the quiz questions
+    active_quiz = session.get('active_quiz')
+    if active_quiz and active_quiz.get('module_id') == module_id:
+        questions = active_quiz.get('questions')
+    else:
+        questions = generate_quiz_for_module(module)
+        session['active_quiz'] = {
+            'module_id': module_id,
+            'questions': questions
+        }
+
+    return render_template('course/quiz.html', module=module, questions=questions)
+
+
+@main_bp.route('/course/module/<int:module_id>/quiz/submit', methods=['POST'])
+@login_required
+def submit_module_quiz(module_id):
+    """Submit quiz answers and evaluate the score."""
+    module = Module.query.get_or_404(module_id)
+    if not module.is_published:
+        abort(404)
+
+    if not current_user.has_completed_all_lessons(module):
+        flash('Você precisa concluir todas as aulas antes de enviar as respostas do quiz!', 'warning')
+        return redirect(url_for('main.module_detail', module_id=module_id))
+
+    active_quiz = session.get('active_quiz')
+    if not active_quiz or active_quiz.get('module_id') != module_id:
+        flash('Sessão de quiz inválida. Por favor, tente novamente.', 'warning')
+        return redirect(url_for('main.module_quiz', module_id=module_id))
+
+    questions = active_quiz['questions']
+    score = 0
+
+    # Evaluate answers
+    for q in questions:
+        selected_option = request.form.get(f"question_{q['id']}")
+        if selected_option is not None:
+            if int(selected_option) == q['correct_index']:
+                score += 1
+
+    passed = score >= 2
+
+    if passed:
+        completion = ModuleQuizCompletion.query.filter_by(user_id=current_user.id, module_id=module_id).first()
+        if not completion:
+            completion = ModuleQuizCompletion(
+                user_id=current_user.id,
+                module_id=module_id,
+                score=score,
+                completed=True
+            )
+            db.session.add(completion)
+        else:
+            completion.score = score
+            completion.completed = True
+            completion.completed_at = datetime.now(timezone.utc)
+        db.session.commit()
+        flash('Parabéns! Você passou no quiz e completou o módulo.', 'success')
+    else:
+        flash('Você não obteve a pontuação mínima necessária. Tente novamente!', 'danger')
+
+    next_module = Module.query.filter(
+        Module.is_published == True,
+        Module.order > module.order
+    ).order_by(Module.order).first()
+
+    session.pop('active_quiz', None)
+
+    return render_template('course/quiz_result.html', module=module, score=score, passed=passed, next_module=next_module)
 
 
 @main_bp.route('/course/lesson/<int:lesson_id>')
