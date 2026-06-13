@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}GDev Tutorial - Aprenda Desenvolvimento{% endblock %}
+{% block title %}gdevtutorial.online - Aprenda a Criar Jogos Sem Código (No-Code){% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
@@ -11,23 +11,22 @@
         <div class="hero-grid"></div>
     </div>
     <div class="container hero-content">
-        <div class="hero-badge animate-fade-in">🚀 Plataforma de Cursos</div>
+        <div class="hero-badge animate-fade-in">🎮 Escola de GDevelop & No-Code</div>
         <h1 class="hero-title animate-fade-in">
-            Domine o <span class="text-gradient">Desenvolvimento</span><br>
-            de Software
+            Crie Seus Próprios <span class="text-gradient">Jogos</span><br>
+            Sem Programar Código
         </h1>
         <p class="hero-subtitle animate-fade-in">
-            Aprenda com aulas práticas, projetos reais e conteúdo atualizado.
-            Sua jornada como desenvolvedor começa aqui.
+            Domine a lógica visual de eventos, use comportamentos (behaviors) prontos, aplique Game Feel (Juice) e descubra como monetizar e lançar seus jogos para milhares de jogadores.
         </p>
         <div class="hero-actions animate-fade-in">
             {% if current_user.is_authenticated %}
                 <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg">
-                    Acessar Curso <span class="btn-arrow">→</span>
+                    Acessar Módulos <span class="btn-arrow">→</span>
                 </a>
             {% else %}
                 <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
-                    Começar Agora <span class="btn-arrow">→</span>
+                    Começar a Criar <span class="btn-arrow">→</span>
                 </a>
                 <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-lg">Já tenho conta</a>
             {% endif %}
@@ -55,29 +54,29 @@
 <section class="features" id="features">
     <div class="container">
         <div class="section-header animate-on-scroll">
-            <span class="section-tag">Por que escolher o GDev?</span>
-            <h2 class="section-title">Tudo que você precisa para <span class="text-gradient">evoluir</span></h2>
+            <span class="section-tag">O Método gdevtutorial.online</span>
+            <h2 class="section-title">Tudo que você precisa para <span class="text-gradient">criar e faturar</span></h2>
         </div>
         <div class="features-grid">
             <div class="feature-card animate-on-scroll">
-                <div class="feature-icon">🎬</div>
-                <h3>Aulas em Vídeo</h3>
-                <p>Conteúdo em vídeo de alta qualidade, organizado em módulos progressivos.</p>
+                <div class="feature-icon">🧩</div>
+                <h3>Tutoriais Estruturados</h3>
+                <p>Do básico de lógica visual de eventos até mecânicas complexas como inteligência artificial, arrays e memória de forma fácil.</p>
             </div>
             <div class="feature-card animate-on-scroll">
-                <div class="feature-icon">📊</div>
-                <h3>Acompanhe seu Progresso</h3>
-                <p>Dashboard pessoal para monitorar seu avanço e marcar aulas concluídas.</p>
+                <div class="feature-icon">🚀</div>
+                <h3>Extensões & Behaviors</h3>
+                <p>Aprenda a aplicar behaviors nativos como Pathfinding 2D/3D, física avançada, Tween e Dialogue Trees sem digitar código.</p>
             </div>
             <div class="feature-card animate-on-scroll">
-                <div class="feature-icon">🔓</div>
-                <h3>Acesso Completo</h3>
-                <p>Cadastre-se gratuitamente e tenha acesso a todo o conteúdo da plataforma.</p>
+                <div class="feature-icon">💥</div>
+                <h3>Game Feel ("Juice")</h3>
+                <p>Torne seus jogos extremamente viciantes e dinâmicos aplicando screenshake, emissor de partículas e ótimos feedbacks táteis.</p>
             </div>
             <div class="feature-card animate-on-scroll">
-                <div class="feature-icon">📱</div>
-                <h3>100% Responsivo</h3>
-                <p>Estude de qualquer lugar, no computador, tablet ou celular.</p>
+                <div class="feature-icon">💰</div>
+                <h3>Monetização & Marketing</h3>
+                <p>Aprenda a adicionar anúncios, compras in-app, vender na Steam/Itch.io e aplicar as estratégias para atrair seus primeiros 10k jogadores.</p>
             </div>
         </div>
     </div>
@@ -87,10 +86,10 @@
 <section class="cta-section">
     <div class="container">
         <div class="cta-card animate-on-scroll">
-            <h2>Pronto para começar sua jornada?</h2>
-            <p>Junte-se a nossa comunidade de desenvolvedores e transforme sua carreira.</p>
+            <h2>Pronto para criar seu primeiro jogo hoje?</h2>
+            <p>Junte-se à maior escola de desenvolvedores indie no-code do Brasil e publique no mercado mundial.</p>
             {% if current_user.is_authenticated %}
-                <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg">Ir para o Curso →</a>
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg">Ir para as Aulas →</a>
             {% else %}
                 <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Criar Conta Gratuita →</a>
             {% endif %}
