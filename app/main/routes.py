@@ -164,9 +164,9 @@ def profile():
 @main_bp.route('/api/chat', methods=['POST'])
 @csrf.exempt
 def chat():
-    """API endpoint for Claude-powered helper chatbot."""
+    """API endpoint for Gemini-powered helper chatbot."""
     import os
-    import anthropic
+    from google import genai
     from flask import jsonify
 
     # Get user message
@@ -176,17 +176,17 @@ def chat():
     if not user_message:
         return jsonify({"response": "Por favor, envie uma mensagem válida."}), 400
 
-    # Get Anthropic API key from Railway env
-    anthropic_key = os.environ.get('ANTHROPIC_API_KEY')
+    # Get Gemini API key from Railway env
+    gemini_key = os.environ.get('GEMINI_API_KEY')
 
-    if not anthropic_key:
+    if not gemini_key:
         return jsonify({
-            "response": "Olá! Eu sou o GDev Helper. No momento, minha chave de acesso à inteligência artificial não está configurada no servidor. Por favor, avise o administrador do site para cadastrar a variável ANTHROPIC_API_KEY!"
+            "response": "Olá! Eu sou o GDev Helper. No momento, minha chave de acesso à inteligência artificial não está configurada no servidor. Por favor, avise o administrador do site para cadastrar a variável GEMINI_API_KEY!"
         }), 200
 
     try:
-        # Initialize the Anthropic client
-        client = anthropic.Anthropic(api_key=anthropic_key)
+        # Initialize the Gemini client
+        client = genai.Client(api_key=gemini_key)
 
         # System prompt to give the AI assistant a clear character
         system_prompt = (
@@ -197,35 +197,36 @@ def chat():
             "Se o usuário pedir códigos, forneça exemplos bem comentados usando markdown."
         )
 
-        # Make request to Claude API
-        message = client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=500,
-            system=system_prompt,
-            messages=[
-                {"role": "user", "content": user_message}
-            ]
+        # Make request to Gemini API
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=user_message,
+            config=genai.types.GenerateContentConfig(
+                system_instruction=system_prompt,
+                max_output_tokens=500,
+                temperature=0.7,
+            ),
         )
 
-        # Extract text response from Claude
-        ai_response = message.content[0].text.strip()
+        # Extract text response from Gemini
+        ai_response = response.text.strip()
         return jsonify({"response": ai_response})
 
-    except anthropic.AuthenticationError:
-        print("[GDev Helper] Claude API Authentication Error: Invalid API key")
-        return jsonify({
-            "response": "Olá! A chave de API do Claude parece estar inválida. Por favor, avise o administrador para verificar a variável ANTHROPIC_API_KEY no servidor."
-        }), 200
-
-    except anthropic.RateLimitError:
-        print("[GDev Helper] Claude API Rate Limit Error")
-        return jsonify({
-            "response": "Estou recebendo muitas perguntas no momento! 😅 Por favor, tente novamente em alguns segundos."
-        }), 200
-
     except Exception as e:
-        print(f"[GDev Helper] Chat Exception: {e}")
-        return jsonify({
-            "response": "Ops! Ocorreu um erro de conexão com o cérebro da inteligência artificial. Por favor, tente novamente."
-        }), 200
+        error_msg = str(e).lower()
+        if 'api key' in error_msg or 'authentication' in error_msg or '401' in error_msg or '403' in error_msg:
+            print(f"[GDev Helper] Gemini API Authentication Error: {e}")
+            return jsonify({
+                "response": "Olá! A chave de API do Gemini parece estar inválida. Por favor, avise o administrador para verificar a variável GEMINI_API_KEY no servidor."
+            }), 200
+        elif 'rate' in error_msg or '429' in error_msg:
+            print(f"[GDev Helper] Gemini API Rate Limit Error: {e}")
+            return jsonify({
+                "response": "Estou recebendo muitas perguntas no momento! 😅 Por favor, tente novamente em alguns segundos."
+            }), 200
+        else:
+            print(f"[GDev Helper] Chat Exception: {e}")
+            return jsonify({
+                "response": "Ops! Ocorreu um erro de conexão com o cérebro da inteligência artificial. Por favor, tente novamente."
+            }), 200
 
