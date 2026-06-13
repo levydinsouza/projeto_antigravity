@@ -188,8 +188,33 @@ def chat():
         # Initialize the Gemini client
         client = genai.Client(api_key=gemini_key)
 
+        # Query active modules and lessons dynamically from database
+        try:
+            from app.models import Module, Lesson
+            published_modules = Module.query.filter_by(is_published=True).order_by(Module.order).all()
+            if published_modules:
+                modules_list = []
+                for mod in published_modules:
+                    lessons_list = []
+                    # Fetch published lessons for this module
+                    pub_lessons = mod.published_lessons.all()
+                    for idx, les in enumerate(pub_lessons, 1):
+                        lessons_list.append(f"    - Aula {idx}: {les.title} ({les.duration_minutes} min)")
+                    lessons_str = "\n".join(lessons_list) if lessons_list else "    - (Nenhuma aula publicada neste módulo)"
+                    modules_list.append(
+                        f"  * Módulo {mod.order + 1}: {mod.title}\n"
+                        f"    Descrição: {mod.description}\n"
+                        f"    Aulas:\n{lessons_str}"
+                    )
+                course_structure = "\n" + "\n\n".join(modules_list)
+            else:
+                course_structure = "\n  (Nenhum módulo publicado no momento)"
+        except Exception as e:
+            print(f"[GDev Helper] Error querying DB models: {e}")
+            course_structure = "\n  (Erro ao obter lista de módulos do banco de dados)"
+
         # System prompt based on official guidelines for gdevtutorial.online and GDevelop-specific accuracy
-        system_prompt = """You are the official AI Assistant for "gdevtutorial.online", an online academy specialized in free, open-source, no-code game development using the GDevelop engine.
+        system_prompt = f"""You are the official AI Assistant for "gdevtutorial.online", an online academy specialized in free, open-source, no-code game development using the GDevelop engine.
 Your primary mission is to guide users through tutorials, extensions, monetization strategies, and game-feel optimization based strictly on the content of the platform.
 
 CRITICAL INSTRUCTIONS:
@@ -198,7 +223,7 @@ CRITICAL INSTRUCTIONS:
    - Refer to Behaviors by their exact GDevelop names: "Platformer Character" (Objeto de plataforma), "Platform" (Plataforma), "Pathfinding", "Tween", "Physics 2.0", "Anchor", "Top-down Movement", "Draggable".
    - Events are structured as: Condições (Conditions) on the left side, Ações (Actions) on the right side.
    - Expressions/Formulas: Use GDevelop syntax like: `Object.X()`, `Object.Y()`, `Variable(myVar)`, `GlobalVarString(myVar)`, `RandomInRange(min, max)`.
-3. CONCISENESS & COMPLETENESS: Ensure your response is highly informative but straight to the point. Since output space is limited, avoid unnecessary wordy introductions or conclusions. Give complete answers so they never get truncated.
+3. CONCISENESS & COMPLETENESS: Ensure your response is highly informative but straight to the point. Avoid long conversational greetings, repetitive explanations, or filler words. Give complete answers so they never get truncated. Go straight to explaining GDevelop logic, using clean bulleted steps.
 4. OUT OF SCOPE: If asked about general topics or unrelated software (or other game engines like Unity, Godot, Unreal), politely steer the conversation back to game development in GDevelop. Use the friendly decline message if it's completely unrelated: "Eu fui treinado para ajudar exclusivamente com os tutoriais, ferramentas e estratégias de desenvolvimento de jogos do gdevtutorial.online. Como posso ajudar no seu projeto de jogo hoje?"
 5. SOURCE REINFORCEMENT: Frequently remind users that complete video guides, asset bundles, and templates are available directly on the gdevtutorial.online platform.
 6. CONTENT MAPPING MATRIX:
@@ -206,6 +231,10 @@ CRITICAL INSTRUCTIONS:
    - Movimentação inteligente ou física -> Guide to "Extensões de Pathfinding / Physics" (Explain native behaviors without code).
    - Salvar progresso de múltiplos objetos -> Guide to "Tutorial de Estrutura de Arrays e Memória" (Explain saving X, Y, and names in arrays).
    - Ganhar dinheiro ou publicar o jogo -> Guide to "Módulo de Monetização e Marketing" (List 4 monetization methods: Ads, In-App Purchases, Web Premium/Donations, Steam/Epic Games, and 5 marketing strategies for first 10k players).
+
+DYNAMIC COURSE CONTENT (DATABASE CONTEXT):
+Use the list below to accurately reply whenever a user asks about modules, lessons, course contents, available courses, what they will learn, or similar queries. Do not make up modules or lessons that are not listed here:
+{course_structure}
 
 LANGUAGE: Always reply in the same language the user speaks to you (Default to Portuguese if they start in Portuguese).
 
@@ -248,7 +277,7 @@ Para atrair público para essas opções, lembre-se de seguir o nosso guia de ma
             contents=user_message,
             config=genai.types.GenerateContentConfig(
                 system_instruction=system_prompt,
-                max_output_tokens=1500,
+                max_output_tokens=3000,
                 temperature=0.7,
             ),
         )
