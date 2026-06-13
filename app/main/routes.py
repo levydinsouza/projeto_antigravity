@@ -164,9 +164,9 @@ def profile():
 @main_bp.route('/api/chat', methods=['POST'])
 @csrf.exempt
 def chat():
-    """API endpoint for OpenAI-powered helper chatbot."""
+    """API endpoint for Claude-powered helper chatbot."""
     import os
-    import requests
+    import anthropic
     from flask import jsonify
 
     # Get user message
@@ -176,21 +176,18 @@ def chat():
     if not user_message:
         return jsonify({"response": "Por favor, envie uma mensagem válida."}), 400
 
-    # Get OpenAI key from Railway env
-    openai_key = os.environ.get('key_1hsfh0hBAoRilfzZ')
+    # Get Anthropic API key from Railway env
+    anthropic_key = os.environ.get('ANTHROPIC_API_KEY')
 
-    if not openai_key:
+    if not anthropic_key:
         return jsonify({
-            "response": "Olá! Eu sou o GDev Helper. No momento, minha chave de acesso à inteligência artificial não está configurada no servidor. Por favor, avise o administrador do site para cadastrar a chave!"
+            "response": "Olá! Eu sou o GDev Helper. No momento, minha chave de acesso à inteligência artificial não está configurada no servidor. Por favor, avise o administrador do site para cadastrar a variável ANTHROPIC_API_KEY!"
         }), 200
 
     try:
-        # Prepare headers and body for OpenAI API
-        headers = {
-            "Authorization": f"Bearer {openai_key}",
-            "Content-Type": "application/json"
-        }
-        
+        # Initialize the Anthropic client
+        client = anthropic.Anthropic(api_key=anthropic_key)
+
         # System prompt to give the AI assistant a clear character
         system_prompt = (
             "Você é o 'GDev Helper', o assistente virtual de Inteligência Artificial da plataforma 'GDev Tutorial'. "
@@ -200,36 +197,35 @@ def chat():
             "Se o usuário pedir códigos, forneça exemplos bem comentados usando markdown."
         )
 
-        payload = {
-            "model": "grok-3-mini-fast",
-            "messages": [
-                {"role": "system", "content": system_prompt},
+        # Make request to Claude API
+        message = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=500,
+            system=system_prompt,
+            messages=[
                 {"role": "user", "content": user_message}
-            ],
-            "max_tokens": 500,
-            "temperature": 0.7
-        }
-
-        # Make request to xAI Grok
-        response = requests.post(
-            "https://api.x.ai/v1/chat/completions",
-            json=payload,
-            headers=headers,
-            timeout=15
+            ]
         )
 
-        if response.status_code == 200:
-            result = response.json()
-            ai_response = result['choices'][0]['message']['content'].strip()
-            return jsonify({"response": ai_response})
-        else:
-            print(f"[GDev Helper] Grok API Error Status {response.status_code}: {response.text}")
-            return jsonify({
-                "response": "Olá! Tive um pequeno problema de comunicação ao processar sua pergunta. Você pode tentar novamente em alguns segundos?"
-            }), 200
+        # Extract text response from Claude
+        ai_response = message.content[0].text.strip()
+        return jsonify({"response": ai_response})
+
+    except anthropic.AuthenticationError:
+        print("[GDev Helper] Claude API Authentication Error: Invalid API key")
+        return jsonify({
+            "response": "Olá! A chave de API do Claude parece estar inválida. Por favor, avise o administrador para verificar a variável ANTHROPIC_API_KEY no servidor."
+        }), 200
+
+    except anthropic.RateLimitError:
+        print("[GDev Helper] Claude API Rate Limit Error")
+        return jsonify({
+            "response": "Estou recebendo muitas perguntas no momento! 😅 Por favor, tente novamente em alguns segundos."
+        }), 200
 
     except Exception as e:
         print(f"[GDev Helper] Chat Exception: {e}")
         return jsonify({
-            "response": "Ops! Ocorreu um erro de conexão de rede com o cérebro da inteligência artificial. Por favor, tente novamente."
+            "response": "Ops! Ocorreu um erro de conexão com o cérebro da inteligência artificial. Por favor, tente novamente."
         }), 200
+
