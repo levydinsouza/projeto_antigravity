@@ -63,11 +63,17 @@ def create_app():
     def pdf_thumbnail(url):
         if not url:
             return ""
-        if "/image/upload/" in url:
-            base_url = url
+        # Convert raw URL to image URL for rendering pages in Cloudinary
+        image_url = url
+        if "/raw/upload/" in image_url:
+            image_url = image_url.replace("/raw/upload/", "/image/upload/", 1)
+        
+        if "/image/upload/" in image_url:
+            base_url = image_url
             if base_url.lower().endswith('.pdf'):
                 base_url = base_url[:-4] + '.jpg'
-            return base_url.replace("/image/upload/", "/image/upload/pg_1,w_300,h_400,c_fill/", 1)
+            # Horizontal crop: w_500, h_280 (approx 16:9)
+            return base_url.replace("/image/upload/", "/image/upload/pg_1,w_500,h_280,c_fill/", 1)
         return ""
 
     # Import models so Alembic can detect the schema

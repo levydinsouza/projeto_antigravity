@@ -57,11 +57,11 @@
                         <div class="pdf-material-card" style="display: flex; gap: 1.5rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); border-radius: 12px; padding: 1.25rem; align-items: center; flex-wrap: wrap;">
                             {% set thumb = lesson.pdf_url|pdf_thumbnail %}
                             {% if thumb %}
-                            <div class="pdf-thumb-wrapper" style="width: 90px; height: 120px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border-glass); box-shadow: 0 4px 10px rgba(0,0,0,0.3); flex-shrink: 0; background: rgba(0,0,0,0.2);">
+                            <div class="pdf-thumb-wrapper" style="width: 180px; height: 101px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-glass); box-shadow: 0 4px 10px rgba(0,0,0,0.3); flex-shrink: 0; background: rgba(0,0,0,0.2);">
                                 <img src="{{ thumb }}" alt="PDF Cover Page 1" style="width: 100%; height: 100%; object-fit: cover; display: block;">
                             </div>
                             {% else %}
-                            <div class="pdf-thumb-wrapper" style="width: 90px; height: 120px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border-glass); box-shadow: 0 4px 10px rgba(0,0,0,0.3); flex-shrink: 0; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 2rem;">
+                            <div class="pdf-thumb-wrapper" style="width: 180px; height: 101px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-glass); box-shadow: 0 4px 10px rgba(0,0,0,0.3); flex-shrink: 0; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 2.5rem;">
                                 📄
                             </div>
                             {% endif %}

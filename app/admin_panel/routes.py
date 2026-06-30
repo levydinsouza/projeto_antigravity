@@ -227,10 +227,18 @@ def new_lesson():
 
         # Handle PDF upload
         if form.pdf_file.data:
-            pdf_result = upload_pdf_file(form.pdf_file.data, folder='gdev-tutorial/lessons')
-            if pdf_result:
-                lesson.pdf_url = pdf_result['url']
-                lesson.pdf_public_id = pdf_result['public_id']
+            # 1. Upload as raw (for download/open)
+            pdf_raw = upload_raw_file(form.pdf_file.data, folder='gdev-tutorial/lessons')
+            
+            # Seek file pointer back to start so we can read it again for the second upload
+            form.pdf_file.data.seek(0)
+            
+            # 2. Upload as image (for thumbnail rendering)
+            pdf_img = upload_pdf_file(form.pdf_file.data, folder='gdev-tutorial/lessons')
+            
+            if pdf_raw and pdf_img:
+                lesson.pdf_url = pdf_raw['url']
+                lesson.pdf_public_id = f"{pdf_raw['public_id']}:{pdf_img['public_id']}"
                 flash('Material PDF enviado com sucesso!', 'info')
             else:
                 flash('Erro ao enviar material PDF.', 'warning')
@@ -276,11 +284,26 @@ def edit_lesson(lesson_id):
         # Handle PDF upload
         if form.pdf_file.data:
             if lesson.pdf_public_id:
-                delete_image(lesson.pdf_public_id)
-            pdf_result = upload_pdf_file(form.pdf_file.data, folder='gdev-tutorial/lessons')
-            if pdf_result:
-                lesson.pdf_url = pdf_result['url']
-                lesson.pdf_public_id = pdf_result['public_id']
+                if ":" in lesson.pdf_public_id:
+                    raw_id, img_id = lesson.pdf_public_id.split(":", 1)
+                    delete_raw_file(raw_id)
+                    delete_image(img_id)
+                else:
+                    delete_raw_file(lesson.pdf_public_id)
+                    delete_image(lesson.pdf_public_id)
+            
+            # 1. Upload as raw (for download/open)
+            pdf_raw = upload_raw_file(form.pdf_file.data, folder='gdev-tutorial/lessons')
+            
+            # Seek file pointer back to start so we can read it again for the second upload
+            form.pdf_file.data.seek(0)
+            
+            # 2. Upload as image (for thumbnail rendering)
+            pdf_img = upload_pdf_file(form.pdf_file.data, folder='gdev-tutorial/lessons')
+            
+            if pdf_raw and pdf_img:
+                lesson.pdf_url = pdf_raw['url']
+                lesson.pdf_public_id = f"{pdf_raw['public_id']}:{pdf_img['public_id']}"
                 flash('Material PDF atualizado!', 'info')
             else:
                 flash('Erro ao enviar material PDF.', 'warning')
@@ -314,7 +337,13 @@ def delete_lesson(lesson_id):
 
     # Delete attachments from Cloudinary
     if lesson.pdf_public_id:
-        delete_image(lesson.pdf_public_id)
+        if ":" in lesson.pdf_public_id:
+            raw_id, img_id = lesson.pdf_public_id.split(":", 1)
+            delete_raw_file(raw_id)
+            delete_image(img_id)
+        else:
+            delete_raw_file(lesson.pdf_public_id)
+            delete_image(lesson.pdf_public_id)
     if lesson.html_public_id:
         delete_raw_file(lesson.html_public_id)
 
@@ -330,7 +359,13 @@ def delete_lesson_pdf(lesson_id):
     """Delete the PDF material of a lesson."""
     lesson = Lesson.query.get_or_404(lesson_id)
     if lesson.pdf_public_id:
-        delete_image(lesson.pdf_public_id)
+        if ":" in lesson.pdf_public_id:
+            raw_id, img_id = lesson.pdf_public_id.split(":", 1)
+            delete_raw_file(raw_id)
+            delete_image(img_id)
+        else:
+            delete_raw_file(lesson.pdf_public_id)
+            delete_image(lesson.pdf_public_id)
     lesson.pdf_url = ''
     lesson.pdf_public_id = ''
     db.session.commit()
