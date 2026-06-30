@@ -148,3 +148,35 @@ def delete_raw_file(public_id):
     except Exception as e:
         print(f'[GDev] Cloudinary raw delete error: {e}')
         return False
+
+
+def upload_pdf_file(file_storage, folder='gdev-tutorial/lessons', public_id=None):
+    """Upload a PDF file to Cloudinary as an image resource.
+
+    This allows generating thumbnails from page 1.
+
+    Args:
+        file_storage: A Werkzeug FileStorage object.
+        folder: Cloudinary folder.
+        public_id: Optional custom public_id.
+
+    Returns:
+        dict with 'url' and 'public_id' on success, or None on failure.
+    """
+    try:
+        options = {
+            'folder': folder,
+            'overwrite': True,
+            'resource_type': 'image'
+        }
+        if public_id:
+            options['public_id'] = public_id
+
+        result = cloudinary.uploader.upload(file_storage, **options)
+        return {
+            'url': result.get('secure_url', result.get('url')),
+            'public_id': result.get('public_id')
+        }
+    except Exception as e:
+        print(f'[GDev] Cloudinary PDF upload error: {e}')
+        return None

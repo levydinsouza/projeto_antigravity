@@ -43,7 +43,7 @@
                         <div class="html-iframe-wrapper" style="border-radius: 12px; overflow: hidden; border: 1px solid var(--border-glass); background: white; margin-bottom: 0.75rem; height: 500px; -webkit-overflow-scrolling: touch;">
                             <iframe src="{{ lesson.html_url }}" frameborder="0" width="100%" height="100%" style="background: white; border: none; display: block;"></iframe>
                         </div>
-                        <a href="{{ lesson.html_url }}" target="_blank" download class="btn btn-outline btn-sm" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                        <a href="{{ lesson.html_url|download_url }}" target="_blank" class="btn btn-outline btn-sm" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
                             📥 Baixar HTML
                         </a>
                     </div>
@@ -54,9 +54,30 @@
                         <h3 style="font-size: 1.1rem; color: var(--primary); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                             <span>📄</span> Guia de Leitura em PDF
                         </h3>
-                        <a href="{{ lesson.pdf_url }}" target="_blank" class="btn btn-primary btn-sm" style="font-size: 0.85rem; padding: 0.5rem 1rem; color: var(--bg-dark);">
-                            📖 Abrir PDF
-                        </a>
+                        <div class="pdf-material-card" style="display: flex; gap: 1.5rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); border-radius: 12px; padding: 1.25rem; align-items: center; flex-wrap: wrap;">
+                            {% set thumb = lesson.pdf_url|pdf_thumbnail %}
+                            {% if thumb %}
+                            <div class="pdf-thumb-wrapper" style="width: 90px; height: 120px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border-glass); box-shadow: 0 4px 10px rgba(0,0,0,0.3); flex-shrink: 0; background: rgba(0,0,0,0.2);">
+                                <img src="{{ thumb }}" alt="PDF Cover Page 1" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                            </div>
+                            {% else %}
+                            <div class="pdf-thumb-wrapper" style="width: 90px; height: 120px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border-glass); box-shadow: 0 4px 10px rgba(0,0,0,0.3); flex-shrink: 0; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 2rem;">
+                                📄
+                            </div>
+                            {% endif %}
+                            <div class="pdf-material-info" style="flex: 1; min-width: 200px;">
+                                <h4 style="margin: 0 0 0.5rem 0; font-family: 'Space Grotesk', sans-serif; color: white;">{{ lesson.title }} - Material de Leitura</h4>
+                                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 1rem 0;">Acesse o conteúdo e notas didáticas desta aula em formato PDF.</p>
+                                <div style="display: flex; gap: 1rem; align-items: center;">
+                                    <a href="{{ lesson.pdf_url }}" target="_blank" class="btn btn-primary btn-sm" style="font-size: 0.85rem; padding: 0.5rem 1rem; color: var(--bg-dark);">
+                                        📖 Abrir PDF
+                                    </a>
+                                    <a href="{{ lesson.pdf_url|download_url }}" target="_blank" class="btn btn-outline btn-sm" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                                        📥 Baixar PDF
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     {% endif %}
                 </div>

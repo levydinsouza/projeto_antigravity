@@ -51,6 +51,25 @@ def create_app():
         formatted = linkified.replace('\n', Markup('<br>'))
         return Markup(formatted)
 
+    @app.template_filter('download_url')
+    def download_url(url):
+        if not url:
+            return ""
+        if "/upload/" in url:
+            return url.replace("/upload/", "/upload/fl_attachment/", 1)
+        return url
+
+    @app.template_filter('pdf_thumbnail')
+    def pdf_thumbnail(url):
+        if not url:
+            return ""
+        if "/image/upload/" in url:
+            base_url = url
+            if base_url.lower().endswith('.pdf'):
+                base_url = base_url[:-4] + '.jpg'
+            return base_url.replace("/image/upload/", "/image/upload/pg_1,w_300,h_400,c_fill/", 1)
+        return ""
+
     # Import models so Alembic can detect the schema
     from app import models
 

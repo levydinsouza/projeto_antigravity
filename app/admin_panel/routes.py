@@ -6,7 +6,7 @@ from app.admin_panel import admin_bp
 from app.admin_panel.forms import ModuleForm, LessonForm
 from app.models import User, Module, Lesson, UserProgress
 from app import db
-from app.cloudinary_utils import upload_image, delete_image, upload_raw_file, delete_raw_file
+from app.cloudinary_utils import upload_image, delete_image, upload_raw_file, delete_raw_file, upload_pdf_file
 
 
 def admin_required(f):
@@ -227,7 +227,7 @@ def new_lesson():
 
         # Handle PDF upload
         if form.pdf_file.data:
-            pdf_result = upload_raw_file(form.pdf_file.data, folder='gdev-tutorial/lessons')
+            pdf_result = upload_pdf_file(form.pdf_file.data, folder='gdev-tutorial/lessons')
             if pdf_result:
                 lesson.pdf_url = pdf_result['url']
                 lesson.pdf_public_id = pdf_result['public_id']
@@ -276,8 +276,8 @@ def edit_lesson(lesson_id):
         # Handle PDF upload
         if form.pdf_file.data:
             if lesson.pdf_public_id:
-                delete_raw_file(lesson.pdf_public_id)
-            pdf_result = upload_raw_file(form.pdf_file.data, folder='gdev-tutorial/lessons')
+                delete_image(lesson.pdf_public_id)
+            pdf_result = upload_pdf_file(form.pdf_file.data, folder='gdev-tutorial/lessons')
             if pdf_result:
                 lesson.pdf_url = pdf_result['url']
                 lesson.pdf_public_id = pdf_result['public_id']
@@ -314,7 +314,7 @@ def delete_lesson(lesson_id):
 
     # Delete attachments from Cloudinary
     if lesson.pdf_public_id:
-        delete_raw_file(lesson.pdf_public_id)
+        delete_image(lesson.pdf_public_id)
     if lesson.html_public_id:
         delete_raw_file(lesson.html_public_id)
 
@@ -330,7 +330,7 @@ def delete_lesson_pdf(lesson_id):
     """Delete the PDF material of a lesson."""
     lesson = Lesson.query.get_or_404(lesson_id)
     if lesson.pdf_public_id:
-        delete_raw_file(lesson.pdf_public_id)
+        delete_image(lesson.pdf_public_id)
     lesson.pdf_url = ''
     lesson.pdf_public_id = ''
     db.session.commit()
