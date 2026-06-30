@@ -99,3 +99,52 @@ def delete_image(public_id):
     except Exception as e:
         print(f'[GDev] Cloudinary delete error: {e}')
         return False
+
+
+def upload_raw_file(file_storage, folder='gdev-tutorial/materials', public_id=None):
+    """Upload a raw file (PDF, HTML) to Cloudinary.
+
+    Args:
+        file_storage: A Werkzeug FileStorage object.
+        folder: Cloudinary folder.
+        public_id: Optional custom public_id.
+
+    Returns:
+        dict with 'url' and 'public_id' on success, or None on failure.
+    """
+    try:
+        options = {
+            'folder': folder,
+            'overwrite': True,
+            'resource_type': 'raw'
+        }
+        if public_id:
+            options['public_id'] = public_id
+
+        result = cloudinary.uploader.upload(file_storage, **options)
+        return {
+            'url': result.get('secure_url', result.get('url')),
+            'public_id': result.get('public_id')
+        }
+    except Exception as e:
+        print(f'[GDev] Cloudinary raw upload error: {e}')
+        return None
+
+
+def delete_raw_file(public_id):
+    """Delete a raw file from Cloudinary by its public_id.
+
+    Args:
+        public_id: The Cloudinary public_id of the raw file to delete.
+
+    Returns:
+        True on success, False on failure.
+    """
+    if not public_id:
+        return False
+    try:
+        result = cloudinary.uploader.destroy(public_id, resource_type='raw')
+        return result.get('result') == 'ok'
+    except Exception as e:
+        print(f'[GDev] Cloudinary raw delete error: {e}')
+        return False

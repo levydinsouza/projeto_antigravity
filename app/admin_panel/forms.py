@@ -53,6 +53,12 @@ class LessonForm(FlaskForm):
     duration_minutes = IntegerField('Duração (minutos)', default=0, validators=[
         NumberRange(min=0, message='Duração deve ser um número positivo.')
     ])
+    pdf_file = FileField('Material PDF (opcional)', validators=[
+        FileAllowed(['pdf'], 'Apenas arquivos PDF são permitidos.')
+    ])
+    html_file = FileField('Material HTML (opcional)', validators=[
+        FileAllowed(['html', 'htm'], 'Apenas arquivos HTML são permitidos.')
+    ])
     is_published = BooleanField('Publicado')
     submit = SubmitField('Salvar Aula')
 

@@ -7,7 +7,7 @@
         <a href="{{ url_for('admin.lessons') }}" class="back-link animate-fade-in">← Voltar às Aulas</a>
         <div class="admin-header animate-fade-in"><h1>{{ title }}</h1></div>
         <div class="admin-card form-card animate-fade-in">
-            <form method="POST" class="admin-form">
+            <form method="POST" enctype="multipart/form-data" class="admin-form">
                 {{ form.hidden_tag() }}
                 <div class="form-group">
                     <label for="module_id">{{ form.module_id.label.text }}</label>
@@ -33,6 +33,28 @@
                     <label for="content">{{ form.content.label.text }}</label>
                     {{ form.content(class="form-control form-textarea", id="content", rows="8", placeholder="Conteúdo textual da aula (suporta HTML)...") }}
                     {% for error in form.content.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+                </div>
+                <div class="form-group">
+                    <label for="pdf_file">{{ form.pdf_file.label.text }}</label>
+                    {% if lesson and lesson.pdf_url %}
+                    <div class="material-preview" style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem;">
+                        <a href="{{ lesson.pdf_url }}" target="_blank" class="btn btn-outline btn-sm">📄 Ver PDF Atual</a>
+                        <button type="submit" formaction="{{ url_for('admin.delete_lesson_pdf', lesson_id=lesson.id) }}" class="btn btn-danger btn-sm">Remover PDF</button>
+                    </div>
+                    {% endif %}
+                    {{ form.pdf_file(class="form-control", id="pdf_file", accept=".pdf") }}
+                    {% for error in form.pdf_file.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+                </div>
+                <div class="form-group">
+                    <label for="html_file">{{ form.html_file.label.text }}</label>
+                    {% if lesson and lesson.html_url %}
+                    <div class="material-preview" style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem;">
+                        <a href="{{ lesson.html_url }}" target="_blank" class="btn btn-outline btn-sm">🌐 Ver HTML Atual</a>
+                        <button type="submit" formaction="{{ url_for('admin.delete_lesson_html', lesson_id=lesson.id) }}" class="btn btn-danger btn-sm">Remover HTML</button>
+                    </div>
+                    {% endif %}
+                    {{ form.html_file(class="form-control", id="html_file", accept=".html,.htm") }}
+                    {% for error in form.html_file.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
                 </div>
                 <div class="form-row">
                     <div class="form-group">

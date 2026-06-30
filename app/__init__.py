@@ -32,6 +32,25 @@ def create_app():
     migrate.init_app(app, db)
     csrf.init_app(app)
 
+    # Register Jinja2 filters
+    @app.template_filter('linkify')
+    def linkify(text):
+        import re
+        from markupsafe import Markup
+        if not text:
+            return ""
+        url_pattern = re.compile(r'((?:https?://|www\.)[^\s<>\'\"]+)')
+        def replace(match):
+            url = match.group(0)
+            href = url
+            if url.startswith('www.'):
+                href = 'https://' + url
+            return f'<a href="{href}" target="_blank" rel="noopener noreferrer">{url}</a>'
+        escaped = Markup.escape(text)
+        linkified = url_pattern.sub(replace, escaped)
+        formatted = linkified.replace('\n', Markup('<br>'))
+        return Markup(formatted)
+
     # Import models so Alembic can detect the schema
     from app import models
 

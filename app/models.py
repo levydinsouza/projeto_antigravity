@@ -129,6 +129,11 @@ class Lesson(db.Model):
         db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
     )
 
+    pdf_url = db.Column(db.String(500), default='')
+    pdf_public_id = db.Column(db.String(300), default='')
+    html_url = db.Column(db.String(500), default='')
+    html_public_id = db.Column(db.String(300), default='')
+
     # Relationships
     progress = db.relationship('UserProgress', backref='lesson', lazy='dynamic',
                                cascade='all, delete-orphan')

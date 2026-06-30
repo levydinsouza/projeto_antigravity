@@ -7,7 +7,7 @@
         <a href="{{ url_for('main.dashboard') }}" class="back-link animate-fade-in">← Voltar ao Dashboard</a>
         <div class="module-header animate-fade-in">
             <h1>{{ module.title }}</h1>
-            <p>{{ module.description }}</p>
+            <p>{{ module.description|linkify }}</p>
             <div class="module-meta">
                 <span>🎬 {{ lessons|length }} aulas</span>
                 <span>⏱ {{ module.total_duration }} min</span>

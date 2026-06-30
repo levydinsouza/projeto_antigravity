@@ -10,6 +10,11 @@ class Config:
     if not db_url:
         # Check if a persistent volume path is specified (e.g., on Railway)
         sqlite_path = os.environ.get('SQLITE_DB_PATH')
+        if not sqlite_path:
+            volume_path = os.environ.get('RAILWAY_VOLUME_MOUNT_PATH')
+            if volume_path:
+                sqlite_path = os.path.join(volume_path, 'dev.db')
+        
         if sqlite_path:
             # Ensure the directory for the custom SQLite path exists
             os.makedirs(os.path.dirname(sqlite_path), exist_ok=True)

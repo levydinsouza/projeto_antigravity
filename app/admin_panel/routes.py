@@ -6,7 +6,7 @@ from app.admin_panel import admin_bp
 from app.admin_panel.forms import ModuleForm, LessonForm
 from app.models import User, Module, Lesson, UserProgress
 from app import db
-from app.cloudinary_utils import upload_image, delete_image
+from app.cloudinary_utils import upload_image, delete_image, upload_raw_file, delete_raw_file
 
 
 def admin_required(f):
@@ -224,6 +224,27 @@ def new_lesson():
             duration_minutes=form.duration_minutes.data or 0,
             is_published=form.is_published.data
         )
+
+        # Handle PDF upload
+        if form.pdf_file.data:
+            pdf_result = upload_raw_file(form.pdf_file.data, folder='gdev-tutorial/lessons')
+            if pdf_result:
+                lesson.pdf_url = pdf_result['url']
+                lesson.pdf_public_id = pdf_result['public_id']
+                flash('Material PDF enviado com sucesso!', 'info')
+            else:
+                flash('Erro ao enviar material PDF.', 'warning')
+
+        # Handle HTML upload
+        if form.html_file.data:
+            html_result = upload_raw_file(form.html_file.data, folder='gdev-tutorial/lessons')
+            if html_result:
+                lesson.html_url = html_result['url']
+                lesson.html_public_id = html_result['public_id']
+                flash('Material HTML enviado com sucesso!', 'info')
+            else:
+                flash('Erro ao enviar material HTML.', 'warning')
+
         db.session.add(lesson)
         db.session.commit()
         flash(f'Aula "{lesson.title}" criada com sucesso!', 'success')
@@ -251,6 +272,31 @@ def edit_lesson(lesson_id):
         lesson.order = form.order.data or 0
         lesson.duration_minutes = form.duration_minutes.data or 0
         lesson.is_published = form.is_published.data
+
+        # Handle PDF upload
+        if form.pdf_file.data:
+            if lesson.pdf_public_id:
+                delete_raw_file(lesson.pdf_public_id)
+            pdf_result = upload_raw_file(form.pdf_file.data, folder='gdev-tutorial/lessons')
+            if pdf_result:
+                lesson.pdf_url = pdf_result['url']
+                lesson.pdf_public_id = pdf_result['public_id']
+                flash('Material PDF atualizado!', 'info')
+            else:
+                flash('Erro ao enviar material PDF.', 'warning')
+
+        # Handle HTML upload
+        if form.html_file.data:
+            if lesson.html_public_id:
+                delete_raw_file(lesson.html_public_id)
+            html_result = upload_raw_file(form.html_file.data, folder='gdev-tutorial/lessons')
+            if html_result:
+                lesson.html_url = html_result['url']
+                lesson.html_public_id = html_result['public_id']
+                flash('Material HTML atualizado!', 'info')
+            else:
+                flash('Erro ao enviar material HTML.', 'warning')
+
         db.session.commit()
         flash(f'Aula "{lesson.title}" atualizada!', 'success')
         return redirect(url_for('admin.lessons'))
@@ -265,7 +311,42 @@ def delete_lesson(lesson_id):
     """Delete a lesson."""
     lesson = Lesson.query.get_or_404(lesson_id)
     title = lesson.title
+
+    # Delete attachments from Cloudinary
+    if lesson.pdf_public_id:
+        delete_raw_file(lesson.pdf_public_id)
+    if lesson.html_public_id:
+        delete_raw_file(lesson.html_public_id)
+
     db.session.delete(lesson)
     db.session.commit()
     flash(f'Aula "{title}" foi deletada.', 'success')
     return redirect(url_for('admin.lessons'))
+
+
+@admin_bp.route('/lessons/<int:lesson_id>/delete_pdf', methods=['POST'])
+@admin_required
+def delete_lesson_pdf(lesson_id):
+    """Delete the PDF material of a lesson."""
+    lesson = Lesson.query.get_or_404(lesson_id)
+    if lesson.pdf_public_id:
+        delete_raw_file(lesson.pdf_public_id)
+    lesson.pdf_url = ''
+    lesson.pdf_public_id = ''
+    db.session.commit()
+    flash('Material PDF deletado.', 'success')
+    return redirect(url_for('admin.edit_lesson', lesson_id=lesson_id))
+
+
+@admin_bp.route('/lessons/<int:lesson_id>/delete_html', methods=['POST'])
+@admin_required
+def delete_lesson_html(lesson_id):
+    """Delete the HTML material of a lesson."""
+    lesson = Lesson.query.get_or_404(lesson_id)
+    if lesson.html_public_id:
+        delete_raw_file(lesson.html_public_id)
+    lesson.html_url = ''
+    lesson.html_public_id = ''
+    db.session.commit()
+    flash('Material HTML deletado.', 'success')
+    return redirect(url_for('admin.edit_lesson', lesson_id=lesson_id))
