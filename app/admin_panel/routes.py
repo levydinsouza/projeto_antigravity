@@ -227,14 +227,17 @@ def new_lesson():
 
         # Handle PDF upload
         if form.pdf_file.data:
+            import uuid
+            shared_filename = f"pdf_{uuid.uuid4().hex}"
+            
             # 1. Upload as raw (for download/open)
-            pdf_raw = upload_raw_file(form.pdf_file.data, folder='gdev-tutorial/lessons')
+            pdf_raw = upload_raw_file(form.pdf_file.data, folder='gdev-tutorial/lessons', public_id=shared_filename)
             
             # Seek file pointer back to start so we can read it again for the second upload
             form.pdf_file.data.seek(0)
             
             # 2. Upload as image (for thumbnail rendering)
-            pdf_img = upload_pdf_file(form.pdf_file.data, folder='gdev-tutorial/lessons')
+            pdf_img = upload_pdf_file(form.pdf_file.data, folder='gdev-tutorial/lessons', public_id=shared_filename)
             
             if pdf_raw and pdf_img:
                 lesson.pdf_url = pdf_raw['url']
@@ -292,14 +295,17 @@ def edit_lesson(lesson_id):
                     delete_raw_file(lesson.pdf_public_id)
                     delete_image(lesson.pdf_public_id)
             
+            import uuid
+            shared_filename = f"pdf_{uuid.uuid4().hex}"
+            
             # 1. Upload as raw (for download/open)
-            pdf_raw = upload_raw_file(form.pdf_file.data, folder='gdev-tutorial/lessons')
+            pdf_raw = upload_raw_file(form.pdf_file.data, folder='gdev-tutorial/lessons', public_id=shared_filename)
             
             # Seek file pointer back to start so we can read it again for the second upload
             form.pdf_file.data.seek(0)
             
             # 2. Upload as image (for thumbnail rendering)
-            pdf_img = upload_pdf_file(form.pdf_file.data, folder='gdev-tutorial/lessons')
+            pdf_img = upload_pdf_file(form.pdf_file.data, folder='gdev-tutorial/lessons', public_id=shared_filename)
             
             if pdf_raw and pdf_img:
                 lesson.pdf_url = pdf_raw['url']

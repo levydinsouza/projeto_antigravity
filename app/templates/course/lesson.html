@@ -27,7 +27,7 @@
                 {% endif %}
 
                 {% if lesson.content %}
-                <div class="lesson-content-body">{{ lesson.content|safe }}</div>
+                <div class="lesson-content-body">{{ lesson.content|linkify_html }}</div>
                 {% endif %}
 
                 <!-- Material de Apoio -->

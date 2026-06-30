@@ -76,6 +76,26 @@ def create_app():
             return base_url.replace("/image/upload/", "/image/upload/pg_1,w_500,h_280,c_fill/", 1)
         return ""
 
+    @app.template_filter('linkify_html')
+    def linkify_html(html_content):
+        import re
+        from markupsafe import Markup
+        if not html_content:
+            return ""
+        # Match either an HTML tag or a URL
+        pattern = re.compile(r'(<[^>]+>)|((?:https?://|www\.)[^\s<>\'\"]+)')
+        def replace(match):
+            tag = match.group(1)
+            url = match.group(2)
+            if tag:
+                return tag
+            href = url
+            if url.startswith('www.'):
+                href = 'https://' + url
+            return f'<a href="{href}" target="_blank" rel="noopener noreferrer">{url}</a>'
+        linkified = pattern.sub(replace, html_content)
+        return Markup(linkified)
+
     # Import models so Alembic can detect the schema
     from app import models
 
